@@ -128,6 +128,24 @@ app.add_middleware(
 )
 ```
 
+### 5. Devnet $VCTR Faucet
+Request free 500 $VCTR test tokens directly to your Solana wallet to test M2M micro-payments:
+```bash
+npm run faucet <YOUR_SOLANA_DEVNET_WALLET_ADDRESS>
+```
+
+### 6. Mainnet-Beta Deployment & Liquidity Guide
+Prepare for Solana Mainnet-Beta deployment and Raydium CPMM liquidity pool setup:
+```bash
+npm run deploy:mainnet
+```
+Read the full institutional launch roadmap: **[MAINNET_DEPLOYMENT_GUIDE.md](./MAINNET_DEPLOYMENT_GUIDE.md)**.
+
+### 7. SDK Publishing to npm & PyPI
+Guides and automated workflows for package distribution:
+- **[SDK_PUBLISHING_GUIDE.md](./SDK_PUBLISHING_GUIDE.md)**
+- GitHub Actions Workflow: `.github/workflows/publish-sdk.yml`
+
 ---
 
 ## 📑 Official Documentation & Whitepapers
@@ -135,6 +153,8 @@ app.add_middleware(
 - 🇺🇸 **[English Technical Whitepaper (VECTRA_WHITEPAPER_EN.md)](./VECTRA_WHITEPAPER_EN.md)**
 - 🇨🇳 **[中文技术白皮书 (VECTRA_WHITEPAPER_CN.md)](./VECTRA_WHITEPAPER_CN.md)**
 - 📊 **[Investor Pitch Deck (PITCH_DECK.md)](./PITCH_DECK.md)**
+- 🚀 **[Mainnet & Liquidity Pool Guide (MAINNET_DEPLOYMENT_GUIDE.md)](./MAINNET_DEPLOYMENT_GUIDE.md)**
+- 📦 **[SDK Publishing Guide (SDK_PUBLISHING_GUIDE.md)](./SDK_PUBLISHING_GUIDE.md)**
 
 ---
 

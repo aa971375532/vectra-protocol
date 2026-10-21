@@ -126,6 +126,23 @@ app.add_middleware(
 )
 ```
 
+### 5. Devnet $VCTR 测试网水龙头
+在终端为指定钱包一键发放 500 $VCTR 测试代币（链上自动扣减 0.20% 磨损）：
+```bash
+npm run faucet <您的_SOLANA_DEVNET_钱包公钥>
+```
+
+### 6. 主网 (Mainnet-Beta) 部署与流动性池搭建
+准备部署至 Solana 主网并配置 Raydium CPMM 流动性池：
+```bash
+npm run deploy:mainnet
+```
+详见机构级上线指南：**[MAINNET_DEPLOYMENT_GUIDE.md](./MAINNET_DEPLOYMENT_GUIDE.md)**。
+
+### 7. SDK 发布至 npm & PyPI 官方包仓库
+- **[SDK 发布全流程操作手册 (SDK_PUBLISHING_GUIDE.md)](./SDK_PUBLISHING_GUIDE.md)**
+- GitHub Actions 自动化发布工作流：`.github/workflows/publish-sdk.yml`
+
 ---
 
 ## 📑 官方文档与白皮书
@@ -133,6 +150,8 @@ app.add_middleware(
 - 🇨🇳 **[中文技术白皮书 (VECTRA_WHITEPAPER_CN.md)](./VECTRA_WHITEPAPER_CN.md)**
 - 🇺🇸 **[English Technical Whitepaper (VECTRA_WHITEPAPER_EN.md)](./VECTRA_WHITEPAPER_EN.md)**
 - 📊 **[商业路演幻灯片 (PITCH_DECK.md)](./PITCH_DECK.md)**
+- 🚀 **[主网与流动性池搭建指南 (MAINNET_DEPLOYMENT_GUIDE.md)](./MAINNET_DEPLOYMENT_GUIDE.md)**
+- 📦 **[SDK 发布指南 (SDK_PUBLISHING_GUIDE.md)](./SDK_PUBLISHING_GUIDE.md)**
 
 ---
 

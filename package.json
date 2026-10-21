@@ -11,6 +11,8 @@
     "dev": "vite",
     "deploy:token": "node scripts/create-vectra-token.js",
     "test:transfer": "node scripts/test-transfer.js",
+    "faucet": "node scripts/faucet-cli.js",
+    "deploy:mainnet": "node scripts/deploy-mainnet.js",
     "start": "node server.js"
   },
   "keywords": [

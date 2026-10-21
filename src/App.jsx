@@ -18,6 +18,7 @@ import {
   CreditCard,
   Sparkles,
   Copy,
+  Droplets,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -59,6 +60,13 @@ export default function App() {
   // 代码复制状态
   const [copiedJs, setCopiedJs] = useState(false);
   const [copiedPy, setCopiedPy] = useState(false);
+
+  // 测试网水龙头状态
+  const [faucetAddress, setFaucetAddress] = useState('');
+  const [isClaiming, setIsClaiming] = useState(false);
+  const [faucetResult, setFaucetResult] = useState(null);
+  const [faucetError, setFaucetError] = useState(null);
+  const [copiedCli, setCopiedCli] = useState(false);
 
   // 初始化监听 Phantom 钱包事件
   useEffect(() => {
@@ -176,6 +184,55 @@ export default function App() {
     }
   };
 
+  // 请求 Devnet 测试币水龙头
+  const handleClaimFaucet = async () => {
+    const target = (faucetAddress || walletAddress || '').trim();
+    if (!target) {
+      setFaucetError(lang === 'en' ? 'Please connect wallet or enter a Solana address' : '请先连接钱包或输入 Solana 接收地址');
+      return;
+    }
+
+    setIsClaiming(true);
+    setFaucetError(null);
+    setFaucetResult(null);
+
+    try {
+      let response;
+      try {
+        response = await fetch('/api/faucet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ recipientAddress: target, amount: 500 }),
+        });
+      } catch (err) {
+        response = await fetch('http://localhost:3000/api/faucet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ recipientAddress: target, amount: 500 }),
+        });
+      }
+
+      const data = await response.json();
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Faucet claim failed');
+      }
+      setFaucetResult(data);
+    } catch (err) {
+      setFaucetError(
+        err.message || (lang === 'en' ? 'Faucet service temporarily unreachable' : '水龙头接口请求失败')
+      );
+    } finally {
+      setIsClaiming(false);
+    }
+  };
+
+  const copyCliCommand = () => {
+    const target = (faucetAddress || walletAddress || '<YOUR_WALLET_ADDRESS>').trim();
+    navigator.clipboard.writeText(`npm run faucet ${target}`);
+    setCopiedCli(true);
+    setTimeout(() => setCopiedCli(false), 2000);
+  };
+
   return (
     <div className="relative min-h-screen flex flex-col justify-between selection:bg-purple-600 selection:text-white bg-[#030712] text-slate-100 bg-grid-pattern">
       
@@ -284,6 +341,17 @@ export default function App() {
               >
                 {t.hero.btnWhitepaper}
                 <ExternalLink className="h-4 w-4 ml-2 text-slate-400" />
+              </a>
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              asChild
+              className="rounded-xl border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-900/40 text-cyan-300 backdrop-blur-md px-5 py-3 text-sm font-semibold"
+            >
+              <a href="#faucet">
+                <Droplets className="h-4 w-4 mr-2 text-cyan-400" />
+                {t.hero.btnFaucet}
               </a>
             </Button>
           </div>
@@ -538,6 +606,134 @@ export default function App() {
               </Tabs>
             </div>
 
+          </div>
+        </section>
+
+        {/* 测试网水龙头 (Devnet Faucet Card) */}
+        <section id="faucet" className="card-glass card-glass-cyan rounded-3xl p-7 sm:p-10 mb-20 relative overflow-hidden">
+          {/* 背景环境光晕 */}
+          <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="max-w-2xl mb-8 relative z-10">
+            <Badge variant="cyan" className="mb-3">
+              <Droplets className="h-3 w-3 mr-1.5 inline" />
+              {t.faucet.badge}
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
+              {t.faucet.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+              {t.faucet.subtitle}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
+            {/* 领水表单区 */}
+            <div className="lg:col-span-7 space-y-5">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold text-slate-300">
+                    {t.faucet.inputLabel}
+                  </label>
+                  {walletAddress && (
+                    <button
+                      type="button"
+                      onClick={() => setFaucetAddress(walletAddress)}
+                      className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-mono transition-colors"
+                    >
+                      {t.faucet.btnAutoFill} ({walletAddress.slice(0, 4)}...{walletAddress.slice(-4)})
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={faucetAddress}
+                    onChange={(e) => setFaucetAddress(e.target.value)}
+                    placeholder={walletAddress || t.faucet.inputPlaceholder}
+                    className="w-full bg-slate-950/70 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 font-mono focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/40 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <Button
+                  onClick={handleClaimFaucet}
+                  disabled={isClaiming}
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl px-6 py-3 shadow-lg shadow-cyan-500/20 text-sm"
+                >
+                  <Droplets className="h-4 w-4 mr-2" />
+                  {isClaiming ? t.faucet.btnClaiming : t.faucet.btnClaim}
+                </Button>
+
+                <div className="text-[11px] text-slate-400 flex items-center">
+                  <Sparkles className="h-3 w-3 text-cyan-400 mr-1.5 shrink-0" />
+                  <span>{t.faucet.rateLimitNotice}</span>
+                </div>
+              </div>
+
+              {/* 报错提示 */}
+              {faucetError && (
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between animate-in fade-in">
+                  <span>{faucetError}</span>
+                  <button onClick={() => setFaucetError(null)} className="text-rose-400 hover:text-rose-200 text-xs ml-2">✕</button>
+                </div>
+              )}
+
+              {/* 成功凭证提示 */}
+              {faucetResult && (
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs space-y-2 animate-in fade-in">
+                  <div className="flex items-center text-emerald-400 font-bold text-sm">
+                    <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                    <span>{faucetResult.message}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 pt-1 text-slate-300 font-mono text-[11px]">
+                    <div>{t.faucet.successNet} <span className="text-emerald-400 font-bold">{faucetResult.netReceivedAmount} $VCTR</span></div>
+                    <div>{t.faucet.successFee} <span className="text-slate-400">{faucetResult.feeAmount} $VCTR</span></div>
+                  </div>
+                  <div className="pt-2">
+                    <a
+                      href={faucetResult.explorerUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center text-cyan-400 hover:text-cyan-300 text-xs underline font-medium"
+                    >
+                      {t.faucet.viewTx}
+                      <ExternalLink className="h-3 w-3 ml-1" />
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 开发者 CLI 命令区 */}
+            <div className="lg:col-span-5 bg-slate-950/80 rounded-2xl border border-white/10 p-5 font-mono text-xs space-y-3">
+              <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                <div className="flex items-center">
+                  <Terminal className="h-3.5 w-3.5 mr-1.5 text-cyan-400" />
+                  <span>{t.faucet.cliTip}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={copyCliCommand}
+                  className="h-6 text-[10px] px-2 text-slate-400 hover:text-slate-100 hover:bg-white/5"
+                >
+                  {copiedCli ? <Check className="h-3 w-3 text-emerald-400 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                  {copiedCli ? 'Copied' : 'Copy'}
+                </Button>
+              </div>
+
+              <div className="bg-black/60 rounded-xl p-3 border border-white/5 text-slate-300 break-all select-all">
+                <span className="text-cyan-400 font-bold">$</span> npm run faucet {(faucetAddress || walletAddress || '<SOLANA_DEVNET_ADDRESS>')}
+              </div>
+
+              <p className="text-[11px] text-slate-500 leading-relaxed font-sans">
+                {lang === 'en'
+                  ? 'Developers can directly integrate or trigger Devnet faucet transfers via the official CLI tool or server endpoints.'
+                  : '开发者也可以直接通过本地 CLI 命令行工具或服务端 REST API 极速批量发放测试币。'}
+              </p>
+            </div>
           </div>
         </section>
 

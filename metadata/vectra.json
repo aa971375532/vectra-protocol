@@ -1,0 +1,46 @@
+{
+  "name": "Vectra",
+  "symbol": "VCTR",
+  "description": "Universal Native Settlement Protocol & Payment Pass for Major AI Platforms (OpenAI, Claude, Midjourney) and Autonomous AI Agent M2M Micropayments on Solana.",
+  "image": "https://raw.githubusercontent.com/aa971375532/vectra-protocol/main/public/logo.svg",
+  "external_url": "https://aa971375532.github.io/vectra-protocol/",
+  "attributes": [
+    {
+      "trait_type": "Standard",
+      "value": "SPL Token-2022"
+    },
+    {
+      "trait_type": "Total Supply",
+      "value": "1,000,000,000"
+    },
+    {
+      "trait_type": "Decimals",
+      "value": "9"
+    },
+    {
+      "trait_type": "Merchant Fee",
+      "value": "0.20%"
+    },
+    {
+      "trait_type": "Burn Share",
+      "value": "50%"
+    },
+    {
+      "trait_type": "Treasury Share",
+      "value": "50%"
+    },
+    {
+      "trait_type": "P2P Transfer Tax",
+      "value": "0.00%"
+    }
+  ],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://raw.githubusercontent.com/aa971375532/vectra-protocol/main/public/logo.svg",
+        "type": "image/svg+xml"
+      }
+    ],
+    "category": "utility"
+  }
+}

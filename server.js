@@ -4,9 +4,21 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const { requestDevnetFaucet, FAUCET_AMOUNT_VCTR, COOLDOWN_MS } = require('./services/faucet');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// 跨域支持 (允许来自 GitHub Pages 或本地前端的 API 请求)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'dist')));
@@ -101,6 +113,34 @@ app.post('/api/pay', (req, res) => {
     solanaExplorerUrl: `https://explorer.solana.com/tx/${mockTxHash}?cluster=devnet`,
     message: `🎉 支付成功！已使用 Vectra 成功兑换 ${serviceName}`,
   });
+});
+
+// 水龙头状态与配置查询接口
+app.get('/api/faucet/info', (req, res) => {
+  const deployment = getDeploymentInfo();
+  res.json({
+    status: 'online',
+    network: deployment.network || 'devnet',
+    mint: deployment.vectraMintAddress,
+    faucetAmount: FAUCET_AMOUNT_VCTR,
+    cooldownMinutes: Math.round(COOLDOWN_MS / 60000),
+  });
+});
+
+// Devnet 水龙头领水接口
+app.post('/api/faucet', async (req, res) => {
+  const { recipientAddress, amount } = req.body;
+  if (!recipientAddress) {
+    return res.status(400).json({ error: '请提供接收测试币的 Solana 钱包地址' });
+  }
+
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+  try {
+    const result = await requestDevnetFaucet(recipientAddress, clientIp, amount ? parseFloat(amount) : FAUCET_AMOUNT_VCTR);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message || '水龙头发放失败' });
+  }
 });
 
 app.listen(PORT, () => {

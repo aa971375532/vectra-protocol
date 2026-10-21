@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vectra-pay"
+version = "1.0.0"
+description = "Official Python SDK & HTTP 402 Middleware for Vectra ($VCTR) Decentralized AI Payments"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+  { name = "Vectra Protocol Foundation", email = "dev@vectra.network" }
+]
+keywords = ["solana", "crypto", "ai", "token-2022", "http402", "middleware", "fastapi"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[project.urls]
+Homepage = "https://aa971375532.github.io/vectra-protocol/"
+Repository = "https://github.com/aa971375532/vectra-protocol"

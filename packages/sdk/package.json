@@ -1,12 +1,31 @@
 {
   "name": "@vectra/pay-sdk",
   "version": "1.0.0",
-  "description": "Official JavaScript/TypeScript SDK for Vectra ($VCTR) Decentralized AI Payments",
+  "description": "Official JavaScript/TypeScript SDK for Vectra ($VCTR) Decentralized AI Payments and Solana Token-2022 Checkouts",
   "main": "index.js",
+  "types": "index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "node ../../test/protocol.test.js"
   },
-  "keywords": ["solana", "token-2022", "vectra", "ai-payment", "http402"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aa971375532/vectra-protocol.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://aa971375532.github.io/vectra-protocol/",
+  "keywords": [
+    "solana",
+    "token-2022",
+    "vectra",
+    "ai-payment",
+    "http402",
+    "checkout",
+    "web3",
+    "crypto"
+  ],
   "author": "Vectra Protocol Foundation",
   "license": "MIT",
   "dependencies": {

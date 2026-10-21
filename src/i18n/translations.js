@@ -19,6 +19,7 @@ export const translations = {
         'Engineered on Solana to become the native checkout standard for top AI platforms. Replacing 3% credit card fees with a 0.20% ultra-low friction model to empower borderless human and autonomous machine settlement.',
       btnSimulate: 'Simulate Platform Checkout',
       btnWhitepaper: 'Read Whitepaper',
+      btnFaucet: 'Devnet Faucet',
     },
     metrics: {
       totalSupply: 'Total Supply',
@@ -81,6 +82,23 @@ export const translations = {
         'Leverage autonomous agent volume to drive native "Pay with Vectra" integration across leading AI giants and establish institutional liquidity bridges.',
       p3Status: 'Ultimate Vision',
     },
+    faucet: {
+      badge: 'Devnet Ecosystem Tool',
+      title: 'Get Free Devnet $VCTR Faucet',
+      subtitle:
+        'Request 500 $VCTR directly to your Solana wallet to test AI micro-settlements and on-chain fee verification.',
+      inputLabel: 'Recipient Solana Devnet Address',
+      inputPlaceholder: 'Enter or paste your Solana public address...',
+      btnAutoFill: 'Use Connected Wallet',
+      btnClaim: 'Claim 500 $VCTR',
+      btnClaiming: 'Broadcasting on Solana...',
+      rateLimitNotice:
+        'Free 500 $VCTR per claim • 10-minute cooldown per address • 0.20% on-chain fee automatically verified',
+      cliTip: 'CLI Developer Command:',
+      successNet: 'Net Received:',
+      successFee: 'On-Chain Fee (0.20%):',
+      viewTx: 'View Transaction on Solana Explorer',
+    },
     modal: {
       title: 'Confirm Vectra On-Chain Checkout',
       subtitle: 'Settled via Solana SPL Token-2022 Smart Program',
@@ -123,6 +141,7 @@ export const translations = {
         '基于 Solana 高速公链，旨在成为未来各大主流 AI 平台官网收银台的原生标配。以 0.20% 超低磨损取代传统 3% 信用卡通道，赋能全球用户与自主 AI 智能体自由结算。',
       btnSimulate: '模拟官网收银台结算',
       btnWhitepaper: '查阅技术白皮书',
+      btnFaucet: '领测试代币',
     },
     metrics: {
       totalSupply: '代币总发行量',
@@ -184,6 +203,23 @@ export const translations = {
       p3Desc:
         '依托庞大的持币用户与 AI Agent 生态体量，推动各大头部 AI 平台（如 OpenAI、Claude 等）官方收银台直接接入 Vectra。',
       p3Status: '终极愿景',
+    },
+    faucet: {
+      badge: 'Devnet 测试网生态工具',
+      title: '免费领取 Devnet $VCTR 测试币',
+      subtitle:
+        '一键领取 500 枚 $VCTR 到您的 Solana 钱包，即刻体验机器微支付与链上 0.20% 磨损销毁验证。',
+      inputLabel: '接收测试代币的 Solana 钱包地址',
+      inputPlaceholder: '输入或粘贴您的 Solana 钱包公钥地址...',
+      btnAutoFill: '填入当前已连钱包',
+      btnClaim: '立即领取 500 $VCTR',
+      btnClaiming: '正在广播上链...',
+      rateLimitNotice:
+        '每次免费发放 500 $VCTR • 每地址限 10 分钟一次 • 链上自动执行 0.20% 磨损与销毁',
+      cliTip: '开发者命令行一键领水：',
+      successNet: '实际到账：',
+      successFee: '链上磨损 (0.20%)：',
+      viewTx: '在 Solana 浏览器查看上链哈希',
     },
     modal: {
       title: '确认 Vectra 链上收银台支付',

@@ -3,3 +3,8 @@ config/keys.json
 wallet.txt
 .env
 .DS_Store
+__pycache__/
+*.pyc
+*.egg-info/
+python-sdk/dist/
+python-sdk/build/

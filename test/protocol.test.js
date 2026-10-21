@@ -67,6 +67,19 @@ async function main() {
     assert.strictEqual(result, false);
   });
 
+  // 测试 5: 水龙头参数校验与地址合法性检验
+  await runTest('水龙头安全拦截非法公钥与参数', async () => {
+    const { requestDevnetFaucet } = require('../services/faucet');
+    let threw = false;
+    try {
+      await requestDevnetFaucet('invalid_solana_address');
+    } catch (e) {
+      threw = true;
+      assert.ok(e.message.includes('无效') || e.message.includes('Solana'));
+    }
+    assert.strictEqual(threw, true);
+  });
+
   console.log(`\n🎉 全部 ${passedTests} 项协议测试全部通过！所有数学与逻辑模型严格对齐设计白皮书。\n`);
 }
 
