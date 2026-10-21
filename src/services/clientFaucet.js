@@ -1,6 +1,14 @@
 // src/services/clientFaucet.js
 // Vectra Protocol ($VCTR) 链上直连水龙头分发引擎 (无服务器、零后端依赖、100% 链上直发)
 
+import { Buffer } from 'buffer';
+if (typeof window !== 'undefined') {
+  window.Buffer = window.Buffer || Buffer;
+}
+if (typeof globalThis !== 'undefined') {
+  globalThis.Buffer = globalThis.Buffer || Buffer;
+}
+
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import {
   getAssociatedTokenAddressSync,

@@ -37,6 +37,7 @@
     "@solana/spl-token": "^0.4.8",
     "@solana/web3.js": "^1.95.8",
     "@tailwindcss/vite": "^4.3.3",
+    "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.7",
