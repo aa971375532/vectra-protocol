@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: vectra-protocol
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FAUCET_COOLDOWN_HOURS
+        value: "24"
