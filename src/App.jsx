@@ -28,8 +28,6 @@ import {
   ArrowLeftRight,
 } from 'lucide-react';
 
-import { claimFaucetOnChain } from './services/clientFaucet';
-
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -71,12 +69,6 @@ export default function App() {
   const [copiedPy, setCopiedPy] = useState(false);
   const [copiedCa, setCopiedCa] = useState(false);
 
-  // 测试网水龙头状态
-  const [faucetAddress, setFaucetAddress] = useState('');
-  const [isClaiming, setIsClaiming] = useState(false);
-  const [faucetResult, setFaucetResult] = useState(null);
-  const [faucetError, setFaucetError] = useState(null);
-
   const GITHUB_REPO = 'https://github.com/aa971375532/vectra-protocol';
 
   // 技术文档与白皮书官方在线链接 (确保 100% 正常渲染且永不 404)
@@ -113,7 +105,6 @@ export default function App() {
             if (resp && resp.publicKey) {
               const addr = resp.publicKey.toString();
               setWalletAddress(addr);
-              setFaucetAddress(addr);
             }
           })
           .catch(() => {
@@ -126,7 +117,6 @@ export default function App() {
       if (publicKey) {
         const addr = publicKey.toString();
         setWalletAddress(addr);
-        setFaucetAddress(addr);
       } else {
         setWalletAddress(null);
         localStorage.removeItem('vectra_wallet_connected');
@@ -174,7 +164,6 @@ export default function App() {
       if (resp && resp.publicKey) {
         const addr = resp.publicKey.toString();
         setWalletAddress(addr);
-        setFaucetAddress(addr);
         localStorage.setItem('vectra_wallet_connected', 'true');
       }
     } catch (err) {
@@ -251,66 +240,6 @@ export default function App() {
     }
   };
 
-  // 请求 Devnet 测试币水龙头
-  const handleClaimFaucet = async () => {
-    const target = (faucetAddress || walletAddress || '').trim();
-    if (!target) {
-      setFaucetError(lang === 'en' ? 'Please connect wallet or enter a Solana address' : '请先连接钱包或输入 Solana 接收地址');
-      return;
-    }
-
-    // 严格校验 Solana 钱包地址有效性 (Base58 编码，32~44 字符)
-    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-    if (!base58Regex.test(target)) {
-      setFaucetError(
-        lang === 'en'
-          ? 'Invalid Solana address. Please enter a valid 32-44 character Base58 address (e.g. from Phantom wallet).'
-          : '无效的 Solana 钱包公钥地址。请输入 32~44 位的 Base58 格式公钥（如 Phantom 钱包中的 Devnet 接收公钥，不能随意输入数字）。'
-      );
-      return;
-    }
-
-    setIsClaiming(true);
-    setFaucetError(null);
-    setFaucetResult(null);
-
-    try {
-      let result;
-      const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-      
-      if (isLocalhost) {
-        try {
-          const res = await fetch('/api/faucet', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ recipientAddress: target, amount: 500 }),
-          });
-          if (res.ok) {
-            result = await res.json();
-          }
-        } catch (e) {
-          // 本地接口异常时，平滑降级至链上前端直发引擎
-        }
-      }
-
-      if (!result) {
-        // 在 GitHub Pages 或无后端环境，直接通过前端直签发起 Solana Devnet 链上转账！
-        result = await claimFaucetOnChain(target, 500);
-      }
-
-      if (!result || result.error) {
-        throw new Error((result && result.error) || (lang === 'en' ? 'Faucet claim failed' : '水龙头领取失败'));
-      }
-      setFaucetResult(result);
-    } catch (err) {
-      setFaucetError(
-        err.message || (lang === 'en' ? 'Faucet service temporarily unreachable' : '水龙头接口请求失败')
-      );
-    } finally {
-      setIsClaiming(false);
-    }
-  };
-
   return (
     <div className="relative min-h-screen flex flex-col justify-between selection:bg-purple-600 selection:text-white bg-[#030712] text-slate-100 bg-grid-pattern">
       
@@ -360,11 +289,13 @@ export default function App() {
               {t.nav.pitchDeck}
             </a>
             <a
-              href="#faucet"
+              href="https://solscan.io/token/79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4"
+              target="_blank"
+              rel="noreferrer"
               className="flex items-center hover:text-white transition-colors py-1 group"
             >
-              <Droplets className="h-3.5 w-3.5 mr-1.5 text-blue-400 group-hover:text-blue-300" />
-              {t.nav.faucet}
+              <ExternalLink className="h-3.5 w-3.5 mr-1.5 text-cyan-400 group-hover:text-cyan-300" />
+              Solscan
             </a>
             <a
               href={GITHUB_REPO}
@@ -483,11 +414,15 @@ export default function App() {
               variant="outline"
               size="lg"
               asChild
-              className="rounded-xl border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-900/40 text-cyan-300 backdrop-blur-md px-5 py-3 text-sm font-semibold"
+              className="rounded-xl border-emerald-500/30 bg-emerald-950/30 hover:bg-emerald-900/40 text-emerald-300 backdrop-blur-md px-5 py-3 text-sm font-semibold"
             >
-              <a href="#faucet">
-                <Droplets className="h-4 w-4 mr-2 text-cyan-400" />
-                {t.hero.btnFaucet}
+              <a
+                href="https://solscan.io/token/79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <ShieldCheck className="h-4 w-4 mr-2 text-emerald-400" />
+                {lang === 'en' ? 'Solscan Verification' : 'Solscan 合约核验'}
               </a>
             </Button>
           </div>
@@ -623,114 +558,6 @@ export default function App() {
             </div>
           </div>
 
-        </section>
-
-        {/* 测试网水龙头 (Devnet Faucet Card) - 提前至首屏核心指标下方 */}
-        <section id="faucet" className="card-glass card-glass-cyan rounded-3xl p-7 sm:p-10 mb-20 relative overflow-hidden">
-          {/* 背景环境光晕 */}
-          <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="max-w-2xl mb-8 relative z-10">
-            <Badge variant="cyan" className="mb-3">
-              <Droplets className="h-3 w-3 mr-1.5 inline" />
-              {t.faucet.badge}
-            </Badge>
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
-              {t.faucet.title}
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-4">
-              {t.faucet.subtitle}
-            </p>
-
-            <div className="p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 flex items-start gap-2.5">
-              <Sparkles className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
-              <div className="leading-relaxed">
-                <span className="font-semibold text-cyan-300">
-                  {lang === 'en' ? 'Devnet Faucet Guide: ' : '🚰 Devnet 领水说明：'}
-                </span>
-                {lang === 'en'
-                  ? 'Enter your Solana Devnet address below to claim 500 $VCTR test tokens directly to your wallet!'
-                  : '在下方输入您的 Solana Devnet 钱包公钥地址，即可一键领取 500 $VCTR 测试币（每地址 24 小时限领一次）！'}
-              </div>
-            </div>
-          </div>
-
-          <div className="max-w-2xl relative z-10 space-y-5">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold text-slate-300">
-                  {t.faucet.inputLabel}
-                </label>
-                {walletAddress && (
-                  <button
-                    type="button"
-                    onClick={() => setFaucetAddress(walletAddress)}
-                    className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-mono transition-colors"
-                  >
-                    {t.faucet.btnAutoFill} ({walletAddress.slice(0, 4)}...{walletAddress.slice(-4)})
-                  </button>
-                )}
-              </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={faucetAddress}
-                  onChange={(e) => setFaucetAddress(e.target.value)}
-                  placeholder={walletAddress || t.faucet.inputPlaceholder}
-                  className="w-full bg-slate-950/70 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 font-mono focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/40 transition-all"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <Button
-                onClick={handleClaimFaucet}
-                disabled={isClaiming}
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl px-7 py-3 shadow-lg shadow-cyan-500/20 text-sm"
-              >
-                <Droplets className="h-4 w-4 mr-2" />
-                {isClaiming ? t.faucet.btnClaiming : t.faucet.btnClaim}
-              </Button>
-
-              <div className="text-[11px] text-slate-400 flex items-center">
-                <Sparkles className="h-3 w-3 text-cyan-400 mr-1.5 shrink-0" />
-                <span>{t.faucet.rateLimitNotice}</span>
-              </div>
-            </div>
-
-            {/* 报错提示 */}
-            {faucetError && (
-              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between animate-in fade-in">
-                <span>{faucetError}</span>
-                <button onClick={() => setFaucetError(null)} className="text-rose-400 hover:text-rose-200 text-xs ml-2">✕</button>
-              </div>
-            )}
-
-            {/* 成功凭证提示 */}
-            {faucetResult && (
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs space-y-2 animate-in fade-in">
-                <div className="flex items-center text-emerald-400 font-bold text-sm">
-                  <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                  <span>{faucetResult.message}</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 pt-1 text-slate-300 font-mono text-[11px]">
-                  <div>{t.faucet.successNet} <span className="text-emerald-400 font-bold">{faucetResult.netReceivedAmount} $VCTR</span></div>
-                  <div>{t.faucet.successFee} <span className="text-slate-400">{faucetResult.feeAmount} $VCTR</span></div>
-                </div>
-                <div className="pt-2">
-                  <a
-                    href={faucetResult.explorerUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center text-cyan-400 hover:text-cyan-300 text-xs underline font-medium"
-                  >
-                    {t.faucet.viewTx}
-                    <ExternalLink className="h-3 w-3 ml-1" />
-                  </a>
-                </div>
-              </div>
-            )}
-          </div>
         </section>
 
         {/* 三大核心价值支柱 (Bento Grid) */}
