@@ -73,7 +73,6 @@ export default function App() {
   const [isClaiming, setIsClaiming] = useState(false);
   const [faucetResult, setFaucetResult] = useState(null);
   const [faucetError, setFaucetError] = useState(null);
-  const [copiedCli, setCopiedCli] = useState(false);
 
   const GITHUB_REPO = 'https://github.com/aa971375532/vectra-protocol';
 
@@ -310,13 +309,6 @@ export default function App() {
     } finally {
       setIsClaiming(false);
     }
-  };
-
-  const copyCliCommand = () => {
-    const target = (faucetAddress || walletAddress || '<YOUR_WALLET_ADDRESS>').trim();
-    navigator.clipboard.writeText(`npm run faucet ${target}`);
-    setCopiedCli(true);
-    setTimeout(() => setCopiedCli(false), 2000);
   };
 
   return (
@@ -595,122 +587,90 @@ export default function App() {
               <Sparkles className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
               <div className="leading-relaxed">
                 <span className="font-semibold text-cyan-300">
-                  {lang === 'en' ? 'Devnet Faucet Guide: ' : '🚰 Devnet 领水指引：'}
+                  {lang === 'en' ? 'Devnet Faucet Guide: ' : '🚰 Devnet 领水说明：'}
                 </span>
                 {lang === 'en'
-                  ? 'Devnet testnet tokens are distributed via secure on-chain signers. You can copy the official CLI command on the right to claim in 2 seconds, or visit your local node at http://localhost:3000!'
-                  : '测试币发放由独立签名引擎实时校验。开发者可直接复制右侧官方 CLI 命令行在终端 2 秒极速秒领，或在本地浏览器访问 http://localhost:3000 享受网页一键秒领！'}
+                  ? 'Enter your Solana Devnet address below to claim 500 $VCTR test tokens directly to your wallet!'
+                  : '在下方输入您的 Solana Devnet 钱包公钥地址，即可一键领取 500 $VCTR 测试币（每地址 24 小时限领一次）！'}
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
-            {/* 领水表单区 */}
-            <div className="lg:col-span-7 space-y-5">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold text-slate-300">
-                    {t.faucet.inputLabel}
-                  </label>
-                  {walletAddress && (
-                    <button
-                      type="button"
-                      onClick={() => setFaucetAddress(walletAddress)}
-                      className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-mono transition-colors"
-                    >
-                      {t.faucet.btnAutoFill} ({walletAddress.slice(0, 4)}...{walletAddress.slice(-4)})
-                    </button>
-                  )}
-                </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={faucetAddress}
-                    onChange={(e) => setFaucetAddress(e.target.value)}
-                    placeholder={walletAddress || t.faucet.inputPlaceholder}
-                    className="w-full bg-slate-950/70 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 font-mono focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/40 transition-all"
-                  />
-                </div>
+          <div className="max-w-2xl relative z-10 space-y-5">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-semibold text-slate-300">
+                  {t.faucet.inputLabel}
+                </label>
+                {walletAddress && (
+                  <button
+                    type="button"
+                    onClick={() => setFaucetAddress(walletAddress)}
+                    className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-mono transition-colors"
+                  >
+                    {t.faucet.btnAutoFill} ({walletAddress.slice(0, 4)}...{walletAddress.slice(-4)})
+                  </button>
+                )}
               </div>
-
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <Button
-                  onClick={handleClaimFaucet}
-                  disabled={isClaiming}
-                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl px-6 py-3 shadow-lg shadow-cyan-500/20 text-sm"
-                >
-                  <Droplets className="h-4 w-4 mr-2" />
-                  {isClaiming ? t.faucet.btnClaiming : t.faucet.btnClaim}
-                </Button>
-
-                <div className="text-[11px] text-slate-400 flex items-center">
-                  <Sparkles className="h-3 w-3 text-cyan-400 mr-1.5 shrink-0" />
-                  <span>{t.faucet.rateLimitNotice}</span>
-                </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={faucetAddress}
+                  onChange={(e) => setFaucetAddress(e.target.value)}
+                  placeholder={walletAddress || t.faucet.inputPlaceholder}
+                  className="w-full bg-slate-950/70 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-100 placeholder-slate-500 font-mono focus:outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/40 transition-all"
+                />
               </div>
-
-              {/* 报错提示 */}
-              {faucetError && (
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between animate-in fade-in">
-                  <span>{faucetError}</span>
-                  <button onClick={() => setFaucetError(null)} className="text-rose-400 hover:text-rose-200 text-xs ml-2">✕</button>
-                </div>
-              )}
-
-              {/* 成功凭证提示 */}
-              {faucetResult && (
-                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs space-y-2 animate-in fade-in">
-                  <div className="flex items-center text-emerald-400 font-bold text-sm">
-                    <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                    <span>{faucetResult.message}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-1 text-slate-300 font-mono text-[11px]">
-                    <div>{t.faucet.successNet} <span className="text-emerald-400 font-bold">{faucetResult.netReceivedAmount} $VCTR</span></div>
-                    <div>{t.faucet.successFee} <span className="text-slate-400">{faucetResult.feeAmount} $VCTR</span></div>
-                  </div>
-                  <div className="pt-2">
-                    <a
-                      href={faucetResult.explorerUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center text-cyan-400 hover:text-cyan-300 text-xs underline font-medium"
-                    >
-                      {t.faucet.viewTx}
-                      <ExternalLink className="h-3 w-3 ml-1" />
-                    </a>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* 开发者 CLI 命令区 */}
-            <div className="lg:col-span-5 bg-slate-950/80 rounded-2xl border border-white/10 p-5 font-mono text-xs space-y-3">
-              <div className="flex items-center justify-between text-slate-400 text-[11px]">
-                <div className="flex items-center">
-                  <Terminal className="h-3.5 w-3.5 mr-1.5 text-cyan-400" />
-                  <span>{t.faucet.cliTip}</span>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={copyCliCommand}
-                  className="h-6 text-[10px] px-2 text-slate-400 hover:text-slate-100 hover:bg-white/5"
-                >
-                  {copiedCli ? <Check className="h-3 w-3 text-emerald-400 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                  {copiedCli ? 'Copied' : 'Copy'}
-                </Button>
-              </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <Button
+                onClick={handleClaimFaucet}
+                disabled={isClaiming}
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl px-7 py-3 shadow-lg shadow-cyan-500/20 text-sm"
+              >
+                <Droplets className="h-4 w-4 mr-2" />
+                {isClaiming ? t.faucet.btnClaiming : t.faucet.btnClaim}
+              </Button>
 
-              <div className="bg-black/60 rounded-xl p-3 border border-white/5 text-slate-300 break-all select-all">
-                <span className="text-cyan-400 font-bold">$</span> npm run faucet {(faucetAddress || walletAddress || '<SOLANA_DEVNET_ADDRESS>')}
+              <div className="text-[11px] text-slate-400 flex items-center">
+                <Sparkles className="h-3 w-3 text-cyan-400 mr-1.5 shrink-0" />
+                <span>{t.faucet.rateLimitNotice}</span>
               </div>
-
-              <p className="text-[11px] text-slate-500 leading-relaxed font-sans">
-                {lang === 'en'
-                  ? 'Developers can directly integrate or trigger Devnet faucet transfers via the official CLI tool or server endpoints.'
-                  : '开发者也可以直接通过本地 CLI 命令行工具或服务端 REST API 极速批量发放测试币。'}
-              </p>
             </div>
+
+            {/* 报错提示 */}
+            {faucetError && (
+              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between animate-in fade-in">
+                <span>{faucetError}</span>
+                <button onClick={() => setFaucetError(null)} className="text-rose-400 hover:text-rose-200 text-xs ml-2">✕</button>
+              </div>
+            )}
+
+            {/* 成功凭证提示 */}
+            {faucetResult && (
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs space-y-2 animate-in fade-in">
+                <div className="flex items-center text-emerald-400 font-bold text-sm">
+                  <CheckCircle2 className="h-4 w-4 mr-1.5" />
+                  <span>{faucetResult.message}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-1 text-slate-300 font-mono text-[11px]">
+                  <div>{t.faucet.successNet} <span className="text-emerald-400 font-bold">{faucetResult.netReceivedAmount} $VCTR</span></div>
+                  <div>{t.faucet.successFee} <span className="text-slate-400">{faucetResult.feeAmount} $VCTR</span></div>
+                </div>
+                <div className="pt-2">
+                  <a
+                    href={faucetResult.explorerUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center text-cyan-400 hover:text-cyan-300 text-xs underline font-medium"
+                  >
+                    {t.faucet.viewTx}
+                    <ExternalLink className="h-3 w-3 ml-1" />
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
