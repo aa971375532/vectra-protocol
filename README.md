@@ -1,5 +1,6 @@
 <div align="center">
-  <img src="./public/logo.svg" width="128" height="128" alt="Vectra Protocol Logo" />
+  <img src="./public/promo_banner.png" width="100%" alt="Vectra Protocol Banner" style="border-radius: 12px; margin-bottom: 20px;" />
+
   <h1>Vectra Protocol ($VCTR)</h1>
   <p><strong>The Decentralized Universal Payment Currency & Settlement Protocol for Global AI Platforms & Autonomous Agents</strong></p>
 
@@ -8,10 +9,12 @@
   </p>
 
   <p>
-    <a href="https://solana.com"><img src="https://img.shields.io/badge/Blockchain-Solana-9945FF?logo=solana" alt="Solana" /></a>
-    <a href="https://spl.solana.com/token-2022"><img src="https://img.shields.io/badge/Standard-SPL%20Token--2022-14F195" alt="Token-2022" /></a>
-    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" /></a>
-    <a href="./test/"><img src="https://img.shields.io/badge/Tests-Passing-brightgreen.svg" alt="Tests" /></a>
+    <a href="https://aa971375532.github.io/vectra-protocol/"><img src="https://img.shields.io/badge/Live%20Portal-Online-00f2fe?style=flat-square&logo=googlechrome" alt="Live Portal" /></a>
+    <a href="https://aa971375532.github.io/vectra-protocol/#faucet"><img src="https://img.shields.io/badge/Devnet%20Faucet-500%20$VCTR-10b981?style=flat-square" alt="Faucet" /></a>
+    <a href="https://x.com/shenmolian4/status/2112936284692033618"><img src="https://img.shields.io/badge/X%20Twitter-Official%20Announcement-000000?style=flat-square&logo=x" alt="Twitter" /></a>
+    <a href="https://solana.com"><img src="https://img.shields.io/badge/Blockchain-Solana-9945FF?style=flat-square&logo=solana" alt="Solana" /></a>
+    <a href="https://spl.solana.com/token-2022"><img src="https://img.shields.io/badge/Standard-SPL%20Token--2022-14F195?style=flat-square" alt="Token-2022" /></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License" /></a>
   </p>
 </div>
 
