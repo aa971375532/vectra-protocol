@@ -14,6 +14,7 @@
     <a href="https://x.com/shenmolian4/status/2112936284692033618"><img src="https://img.shields.io/badge/X%20Twitter-官方首发推文-000000?style=flat-square&logo=x" alt="Twitter" /></a>
     <a href="https://solana.com"><img src="https://img.shields.io/badge/区块链-Solana-9945FF?style=flat-square&logo=solana" alt="Solana" /></a>
     <a href="https://spl.solana.com/token-2022"><img src="https://img.shields.io/badge/代币标准-SPL%20Token--2022-14F195?style=flat-square" alt="Token-2022" /></a>
+    <a href="https://github.com/solana-foundation/awesome-solana-ai/pull/267"><img src="https://img.shields.io/badge/Solana%E5%AE%98%E6%96%B9%E7%94%9F%E6%80%81-awesome--solana--ai%20%23267-purple?style=flat-square&logo=github" alt="Solana AI PR" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/许可证-MIT-blue.svg?style=flat-square" alt="License" /></a>
   </p>
 </div>
