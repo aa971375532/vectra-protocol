@@ -380,7 +380,7 @@
   </footer>
 
   <script>
-    let isConnected = false;
+    let userPublicKey = null;
 
     function switchCodeTab(lang) {
       const codeJs = document.getElementById('codeJs');
@@ -401,19 +401,61 @@
       }
     }
 
-    function toggleWallet() {
+    // 真正调用浏览器 Phantom 插件进行去中心化授权连接
+    async function toggleWallet() {
       const btn = document.getElementById('walletText');
-      if (!isConnected) {
-        isConnected = true;
-        btn.innerText = 'CvKb...56CTg (已连接)';
-        alert('✅ 已成功连接 Phantom 钱包！');
-      } else {
-        isConnected = false;
+
+      // 1. 检查浏览器是否已安装 Phantom 扩展
+      if (!window.solana || !window.solana.isPhantom) {
+        alert('⚠️ 未检测到 Phantom 插件，正在为你打开 Phantom 官网...');
+        window.open('https://phantom.app/', '_blank');
+        return;
+      }
+
+      // 2. 如果已连接，则断开
+      if (userPublicKey) {
+        await window.solana.disconnect();
+        userPublicKey = null;
         btn.innerText = '连接 Phantom 钱包';
+        return;
+      }
+
+      // 3. 真正唤起 Phantom 插件弹窗，请求用户授权
+      try {
+        const resp = await window.solana.connect();
+        userPublicKey = resp.publicKey.toString();
+        
+        // 截取前4后4位显示真实地址
+        const shortAddr = userPublicKey.slice(0, 4) + '...' + userPublicKey.slice(-4);
+        btn.innerText = `${shortAddr} (已连接)`;
+        console.log('✅ 真实连接成功！当前 Phantom 授权公钥:', userPublicKey);
+      } catch (err) {
+        console.warn('用户取消了钱包连接:', err);
       }
     }
 
-    function simulatePlatformCheckout() {
+    // 监听 Phantom 账户切换与断开事件
+    if (window.solana) {
+      window.solana.on('accountChanged', (publicKey) => {
+        if (publicKey) {
+          userPublicKey = publicKey.toString();
+          document.getElementById('walletText').innerText = userPublicKey.slice(0, 4) + '...' + userPublicKey.slice(-4) + ' (已连接)';
+        } else {
+          userPublicKey = null;
+          document.getElementById('walletText').innerText = '连接 Phantom 钱包';
+        }
+      });
+      window.solana.on('disconnect', () => {
+        userPublicKey = null;
+        document.getElementById('walletText').innerText = '连接 Phantom 钱包';
+      });
+    }
+
+    async function simulatePlatformCheckout() {
+      if (!userPublicKey) {
+        await toggleWallet();
+        if (!userPublicKey) return;
+      }
       document.getElementById('simActionArea').classList.remove('hidden');
       document.getElementById('simSuccessArea').classList.add('hidden');
       document.getElementById('simModal').classList.remove('hidden');

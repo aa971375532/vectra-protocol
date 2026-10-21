@@ -1,79 +1,145 @@
-# Vectra Protocol ($VCTR)
+<div align="center">
+  <img src="./public/logo.svg" width="128" height="128" alt="Vectra Protocol Logo" />
+  <h1>Vectra Protocol ($VCTR)</h1>
+  <p><strong>The Decentralized Universal Payment Currency & Settlement Protocol for Global AI Platforms & Autonomous Agents</strong></p>
 
-**The Decentralized Universal Payment Currency & Settlement Protocol for Global AI Platforms & Autonomous Agents**
+  <p>
+    <b>English</b> | <a href="./README_CN.md">简体中文</a>
+  </p>
 
-[![Solana](https://img.shields.io/badge/Blockchain-Solana-9945FF?logo=solana)](https://solana.com)
-[![Token-2022](https://img.shields.io/badge/Standard-SPL%20Token--2022-14F195)](https://spl.solana.com/token-2022)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)](./test/)
-
----
-
-## 🌟 核心价值主张 (Core Value Proposition)
-
-- **AI 智能体原生 (Agent Native)**：为无银行卡、无身份 KYC 的自主 AI 智能体提供机器原生加密资产结算。
-- **0 拒付全球免外卡 (Zero-Decline Global Access)**：突破非美区用户信用卡风控拒付壁垒，实现全球毫秒级结算。
-- **0.2% 双轨制低磨损 (0.2% Low-Friction Model)**：
-  - 普通转账 / DEX 做市：**0.00% 绝对免税**，保护二级市场极致流动性。
-  - AI 平台商户结算：提取极低 **0.20% 网络费（0.10% 永久销毁 + 0.10% 协议金库）**。
-- **原生 Gas 代付体验 (Fee Payer)**：终端用户钱包 0 SOL 即可支付，体验比肩 Web2。
+  <p>
+    <a href="https://solana.com"><img src="https://img.shields.io/badge/Blockchain-Solana-9945FF?logo=solana" alt="Solana" /></a>
+    <a href="https://spl.solana.com/token-2022"><img src="https://img.shields.io/badge/Standard-SPL%20Token--2022-14F195" alt="Token-2022" /></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License" /></a>
+    <a href="./test/"><img src="https://img.shields.io/badge/Tests-Passing-brightgreen.svg" alt="Tests" /></a>
+  </p>
+</div>
 
 ---
 
-## 📂 项目工程架构 (Repository Structure)
+## 🌟 Executive Summary
+
+**Vectra ($VCTR)** is an ultra-low friction, high-throughput decentralized cryptocurrency architected natively upon the **Solana** blockchain. Standardized on the latest **SPL Token-2022** program, Vectra solves the systemic breakdown of legacy payment rails (Stripe, credit cards) in modern artificial intelligence workloads.
+
+It provides a universal, native payment medium designed to be integrated directly into the official checkout flows of leading AI platforms (such as OpenAI, Claude, Midjourney, and open-source model providers), as well as serving as the native financial standard for **Autonomous AI Agents (Machine-to-Machine commerce)**.
+
+---
+
+## ⚡ Core Value Propositions
+
+- **AI Agent Native (M2M Standard)**: Enables autonomous AI agents—lacking legal identities or banking debit cards—to autonomously transact and procure compute, models, and API tools using native cryptographic keypairs.
+- **Zero-Decline Cross-Border Access**: Eliminates geographical card-declines, IP-blocking, and high currency-conversion markups for the 60%+ of developers residing outside North America and Western Europe.
+- **0.20% Dual-Track Low-Friction Model**:
+  - **Peer-to-Peer & DEX Trading**: **0.00% absolute zero tax** to ensure frictionless capital velocity and deep secondary market liquidity.
+  - **AI Merchant Settlement**: Assesses a lightweight **0.20% network fee (0.10% permanently burned to black hole for sustainable micro-deflation, 0.10% into protocol treasury for continuous R&D)**.
+- **Gasless User Experience (Native Fee Payer)**: Powered by Solana's native fee-payer mechanism, end users and AI agents require **0 SOL** to execute payments, transacting purely in `$VCTR` with Web2-level latency (<400ms).
+
+---
+
+## 🪙 Tokenomics & On-Chain Fundamentals
+
+| Parameter | Specification |
+| :--- | :--- |
+| **Token Name** | Vectra |
+| **Ticker Symbol** | **$VCTR** |
+| **Underlying Blockchain** | Solana (SPL Token-2022 Standard) |
+| **Precision (Decimals)** | **9** (Optimized for token-level micro-metering) |
+| **Total Supply** | **1,000,000,000 $VCTR (Fixed Hard-Cap, Zero Inflation)** |
+| **Merchant Settlement Fee** | **0.20%** (50% Burned, 50% Treasury) |
+| **P2P Transfer / DEX Tax** | **0.00%** (Zero friction) |
+| **Devnet Mint Address** | `8aGGfyBvgeiq9WbyZRbgYSKkXhnYymNVh7oMw2ju4t14` |
+
+---
+
+## 📂 Repository Architecture
 
 ```
-c:/Users/Administrator/Desktop/新建文件夹/
-├── VECTRA_WHITEPAPER_CN.md   # 🇨🇳 官方中文技术白皮书 (完整版)
-├── VECTRA_WHITEPAPER_EN.md   # 🇺🇸 Official English Technical Whitepaper
-├── PITCH_DECK.md             # 📊 10 页投资与合作伙伴路演幻灯片 (Pitch Deck)
-├── wallet.txt                # 🔑 创始人个人钱包与金库私钥档案 (本地私密保管)
+vectra-protocol/
+├── VECTRA_WHITEPAPER_EN.md   # 🇺🇸 Official English Technical Whitepaper (Full 9 Chapters)
+├── VECTRA_WHITEPAPER_CN.md   # 🇨🇳 Official Chinese Technical Whitepaper (Full 9 Chapters)
+├── PITCH_DECK.md             # 📊 10-Slide Investor & Partner Presentation Deck
+├── README.md                 # 🌐 English Official Repository Overview
+├── README_CN.md              # 🇨🇳 Chinese Official Repository Overview
 │
 ├── packages/
-│   └── sdk/                  # 💻 官方 JavaScript/TypeScript SDK (@vectra/pay-sdk)
-├── python-sdk/               # 🐍 官方 Python SDK & HTTP 402 中间件 (vectra-pay)
+│   └── sdk/                  # 💻 Official JavaScript/TypeScript SDK (@vectra/pay-sdk)
+├── python-sdk/               # 🐍 Official Python SDK & HTTP 402 Middleware (vectra-pay)
 ├── examples/
-│   └── http402-ai-server.js  # 🤖 完整运行的 HTTP 402 AI 模型微支付服务端示例
+│   └── http402-ai-server.js  # 🤖 Working HTTP 402 Per-Request AI Model Micropayment Server
 ├── scripts/
-│   ├── generate-keys.js      # 创世密钥对生成脚本
-│   ├── view-keys.js          # 查看 Base58 私钥与链上链接
-│   └── create-vectra-token.js# Solana Token-2022 部署脚本 (带 0.2% 费率扩展)
+│   ├── create-vectra-token.js# Token-2022 Deployment Engine with Transfer-Fee Extension
+│   ├── generate-keys.js      # Keypair Provisioning Utility
+│   └── view-keys.js          # Credential Display & Explorer Tooling
 ├── test/
-│   └── protocol.test.js      # 🧪 协议核心数学与代币经济学自动化测试套件
+│   └── protocol.test.js      # 🧪 Automated Mathematical & Tokenomic Test Suite
 ├── public/
-│   └── index.html            # 🌐 Vectra 官方交互门户与收银台接入预览前端
-├── server.js                 # ⚡ 官方本地服务与 API 路由
-└── config/                   # 📁 本地密钥与链上部署配置文件
+│   ├── index.html            # 🌐 Interactive Official Portal & Checkout Preview
+│   └── logo.svg              # 🎨 Official Vector Logo Artwork
+└── server.js                 # ⚡ Official Local Portal & API Daemon
 ```
 
 ---
 
-## 🚀 极速上手指令 (Quick Start)
+## 🚀 Quickstart & Developer Integration
 
-### 1. 运行核心协议自动化测试
+### 1. Run Automated Protocol Math Tests
+Verify the 0.20% dual-track mathematical fee split and 9-decimal precision:
 ```bash
 npm test
 ```
-*自动验证 0.2% 手续费数学模型、9 位微计费精度与密钥配置。*
 
-### 2. 启动官方交互门户
+### 2. Start the Interactive Web Portal
+Launch the local official portal with checkout simulation and whitepaper viewer:
 ```bash
 npm start
 ```
-打开浏览器访问：**http://localhost:3000**
+Visit **http://localhost:3000** in your browser.
 
-### 3. 查看创始人与协议金库钱包私钥
-```bash
-npm run view:keys
+### 3. JavaScript / TypeScript SDK (`@vectra/pay-sdk`)
+Integrate into any AI platform web checkout in 2 lines of code:
+```javascript
+import { VectraCheckout } from '@vectra/pay-sdk';
+
+const checkout = new VectraCheckout({
+  merchantAddress: 'DDngT11XyxqbYi38nNv1sDNxw1K4er1WHQb7EyAQhcgg',
+  amountVctr: 20.0,
+  orderId: 'AI-SUB-20261021',
+  onSuccess: (signature) => {
+    console.log('Payment verified on Solana:', signature);
+  }
+});
+
+checkout.render('#vectra-pay-button');
 ```
 
-### 4. 启动 HTTP 402 AI 模型微支付服务示例
-```bash
-node examples/http402-ai-server.js
+### 4. Python SDK & HTTP 402 Middleware (`vectra-pay`)
+Monetize any FastAPI / Starlette LLM endpoint per request using native HTTP 402:
+```python
+from fastapi import FastAPI
+from vectra_pay import VectraHTTP402Middleware
+
+app = FastAPI()
+
+# Mount Vectra Decentralized Micropayment Middleware
+app.add_middleware(
+    VectraHTTP402Middleware,
+    merchant_address="DDngT11XyxqbYi38nNv1sDNxw1K4er1WHQb7EyAQhcgg",
+    price_per_call=0.05  # Charges 0.05 $VCTR per model inference call
+)
 ```
 
 ---
 
-## 📜 许可证与贡献
-- 遵循 [MIT 开源许可证](./LICENSE)。
-- 欢迎阅读 [贡献指南 (CONTRIBUTING.md)](./CONTRIBUTING.md) 与 [安全漏洞披露政策 (SECURITY.md)](./SECURITY.md)。
+## 📑 Official Documentation & Whitepapers
+
+- 🇺🇸 **[English Technical Whitepaper (VECTRA_WHITEPAPER_EN.md)](./VECTRA_WHITEPAPER_EN.md)**
+- 🇨🇳 **[中文技术白皮书 (VECTRA_WHITEPAPER_CN.md)](./VECTRA_WHITEPAPER_CN.md)**
+- 📊 **[Investor Pitch Deck (PITCH_DECK.md)](./PITCH_DECK.md)**
+
+---
+
+## 🛡️ License & Contributing
+
+- Distributed under the [MIT License](./LICENSE).
+- For contributions, please review [CONTRIBUTING.md](./CONTRIBUTING.md).
+- To report security vulnerabilities, consult [SECURITY.md](./SECURITY.md).
