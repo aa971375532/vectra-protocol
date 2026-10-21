@@ -4,7 +4,7 @@
 export const translations = {
   en: {
     nav: {
-      networkBadge: 'Solana Devnet',
+      networkBadge: 'Solana Mainnet-Beta',
       connectWallet: 'Connect Phantom',
       connected: 'Connected',
       disconnect: 'Disconnect',
@@ -128,7 +128,7 @@ export const translations = {
 
   zh: {
     nav: {
-      networkBadge: 'Solana Devnet 测试网',
+      networkBadge: 'Solana 生产主网已上线',
       connectWallet: '连接 Phantom 钱包',
       connected: '已连接',
       disconnect: '断开连接',

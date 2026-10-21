@@ -69,6 +69,7 @@ export default function App() {
   // 代码复制状态
   const [copiedJs, setCopiedJs] = useState(false);
   const [copiedPy, setCopiedPy] = useState(false);
+  const [copiedCa, setCopiedCa] = useState(false);
 
   // 测试网水龙头状态
   const [faucetAddress, setFaucetAddress] = useState('');
@@ -489,6 +490,65 @@ export default function App() {
                 {t.hero.btnFaucet}
               </a>
             </Button>
+          </div>
+
+          {/* 生产主网官方合约展示卡片 */}
+          <div className="mt-10 max-w-2xl mx-auto rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-4 sm:p-5 backdrop-blur-md shadow-xl shadow-emerald-950/20 text-left">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                  {lang === 'en' ? 'Solana Mainnet-Beta Official Contract' : 'Solana 生产主网官方合约'}
+                </span>
+                <Badge variant="purple" className="text-[10px] py-0">Token-2022</Badge>
+                <span className="text-[10px] text-emerald-300/80 font-mono hidden sm:inline">100% Rug-Proof</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <a
+                  href="https://explorer.solana.com/address/79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1 transition-colors"
+                >
+                  Explorer <ExternalLink className="h-3 w-3" />
+                </a>
+                <span className="text-slate-600">|</span>
+                <a
+                  href="https://solscan.io/token/79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1 transition-colors"
+                >
+                  Solscan <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-2 bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 font-mono text-xs text-slate-200">
+              <span className="truncate selection:bg-emerald-500 selection:text-black">
+                79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4
+              </span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText('79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4');
+                  setCopiedCa(true);
+                  setTimeout(() => setCopiedCa(false), 2000);
+                }}
+                className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 transition-colors font-sans text-xs font-medium cursor-pointer"
+              >
+                {copiedCa ? (
+                  <>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>{lang === 'en' ? 'Copied' : '已复制'}</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5" />
+                    <span>{lang === 'en' ? 'Copy CA' : '复制合约'}</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </section>
 
