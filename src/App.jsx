@@ -28,6 +28,8 @@ import {
   ArrowLeftRight,
 } from 'lucide-react';
 
+import { claimFaucetOnChain } from './services/clientFaucet';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -272,36 +274,33 @@ export default function App() {
     setFaucetResult(null);
 
     try {
-      const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-
-      if (isGitHubPages) {
-        throw new Error(
-          lang === 'en'
-            ? 'GitHub Pages is a static showcase (on-chain signing keys are kept safe on backend nodes). To claim 500 $VCTR instantly: 1) Run `npm run faucet ' + (target.slice(0, 4) + '...' + target.slice(-4)) + '` in terminal (recommended), or 2) Open http://localhost:3000 locally for 1-click web claims!'
-            : '当前线上站点为 GitHub Pages 纯静态展示站（为保障创始人金库私钥绝对安全，链上签名服务运行于独立安全节点）。秒领方式：① 复制右侧官方命令在本地终端运行即时到账（推荐）；② 直接在浏览器打开本地服务 http://localhost:3000 即可在网页上一键领取！'
-        );
+      let result;
+      const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+      
+      if (isLocalhost) {
+        try {
+          const res = await fetch('/api/faucet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipientAddress: target, amount: 500 }),
+          });
+          if (res.ok) {
+            result = await res.json();
+          }
+        } catch (e) {
+          // 本地接口异常时，平滑降级至链上前端直发引擎
+        }
       }
 
-      let response = await fetch('/api/faucet', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipientAddress: target, amount: 500 }),
-      });
-
-      const contentType = (response && response.headers.get('content-type')) || '';
-      if (!contentType.includes('application/json')) {
-        throw new Error(
-          lang === 'en'
-            ? 'Faucet backend service unreachable. Please ensure `node server.js` is running on port 3000.'
-            : '本地水龙头签名服务未响应，请确保本地 `node server.js` 正在运行。'
-        );
+      if (!result) {
+        // 在 GitHub Pages 或无后端环境，直接通过前端直签发起 Solana Devnet 链上转账！
+        result = await claimFaucetOnChain(target, 500);
       }
 
-      const data = await response.json();
-      if (!response.ok || data.error) {
-        throw new Error(data.error || (lang === 'en' ? 'Faucet claim failed' : '水龙头领取失败'));
+      if (!result || result.error) {
+        throw new Error((result && result.error) || (lang === 'en' ? 'Faucet claim failed' : '水龙头领取失败'));
       }
-      setFaucetResult(data);
+      setFaucetResult(result);
     } catch (err) {
       setFaucetError(
         err.message || (lang === 'en' ? 'Faucet service temporarily unreachable' : '水龙头接口请求失败')
