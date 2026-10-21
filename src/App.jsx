@@ -257,6 +257,17 @@ export default function App() {
       return;
     }
 
+    // 严格校验 Solana 钱包地址有效性 (Base58 编码，32~44 字符)
+    const base58Regex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+    if (!base58Regex.test(target)) {
+      setFaucetError(
+        lang === 'en'
+          ? 'Invalid Solana address. Please enter a valid 32-44 character Base58 address (e.g. from Phantom wallet).'
+          : '无效的 Solana 钱包公钥地址。请输入 32~44 位的 Base58 格式公钥（如 Phantom 钱包中的 Devnet 接收地址，不能随意输入数字）。'
+      );
+      return;
+    }
+
     setIsClaiming(true);
     setFaucetError(null);
     setFaucetResult(null);
@@ -264,39 +275,26 @@ export default function App() {
     try {
       const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
 
-      let response;
-      try {
-        response = await fetch('/api/faucet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ recipientAddress: target, amount: 500 }),
-        });
-      } catch (networkErr) {
-        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-          response = await fetch('http://localhost:3000/api/faucet', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ recipientAddress: target, amount: 500 }),
-          });
-        } else {
-          throw networkErr;
-        }
-      }
-
-      if (response && response.status === 404 && isGitHubPages) {
+      if (isGitHubPages) {
         throw new Error(
           lang === 'en'
-            ? 'GitHub Pages is a static showcase (backend private keys are protected and not exposed client-side). Please copy the CLI command on the right to claim instantly via terminal, or start the local node server at http://localhost:3000 for 1-click web claims!'
-            : '当前 GitHub Pages 属于纯静态演示站（为保障创始人金库私钥绝对安全，链上签名服务运行于独立安全节点）。您可以复制右侧 CLI 命令 `npm run faucet` 在终端一键秒领，或在本地启动 (http://localhost:3000) 即可直接在网页上一键领取！'
+            ? 'GitHub Pages is a static showcase (on-chain signing keys are kept safe on backend nodes). To claim instantly: 1) Run `npm run faucet ' + (target.slice(0, 4) + '...' + target.slice(-4)) + '` in terminal, or 2) Open http://localhost:3000 in your browser for 1-click web claims!'
+            : '当前线上站点为 GitHub Pages 纯静态展示站（为保障创始人金库私钥绝对安全，链上签名服务运行于独立安全节点）。秒领方式：① 复制右侧命令在本地终端运行即时到账；② 直接在浏览器打开本地服务 http://localhost:3000 即可在网页上一键领取！'
         );
       }
+
+      let response = await fetch('/api/faucet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipientAddress: target, amount: 500 }),
+      });
 
       const contentType = (response && response.headers.get('content-type')) || '';
       if (!contentType.includes('application/json')) {
         throw new Error(
           lang === 'en'
-            ? 'Faucet backend service unreachable. Please ensure `node server.js` is running.'
-            : '水龙头签名服务未响应，请确保本地 `node server.js` 正在运行。'
+            ? 'Faucet backend service unreachable. Please ensure `node server.js` is running on port 3000.'
+            : '本地水龙头签名服务未响应，请确保本地 `node server.js` 正在运行。'
         );
       }
 
@@ -589,9 +587,23 @@ export default function App() {
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2">
               {t.faucet.title}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-4">
               {t.faucet.subtitle}
             </p>
+
+            {typeof window !== 'undefined' && window.location.hostname.endsWith('github.io') && (
+              <div className="p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 flex items-start gap-2.5">
+                <Sparkles className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <span className="font-semibold text-cyan-300">
+                    {lang === 'en' ? 'Notice: ' : '环境提示：'}
+                  </span>
+                  {lang === 'en'
+                    ? 'GitHub Pages is a static showcase. To test 1-click web claiming, visit your local node at http://localhost:3000 or copy the CLI command on the right!'
+                    : '当前线上为 GitHub Pages 静态展示站。本地水龙头已就绪，您可以直接访问 http://localhost:3000 进行网页一键秒领，或使用右侧 CLI 命令极速到账！'}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
