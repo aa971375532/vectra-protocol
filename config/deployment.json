@@ -1,0 +1,10 @@
+{
+  "network": "devnet",
+  "programId": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+  "vectraMintAddress": "8aGGfyBvgeiq9WbyZRbgYSKkXhnYymNVh7oMw2ju4t14",
+  "decimals": 9,
+  "feeBasisPoints": 20,
+  "founderAta": "Bqe1g4C1ZQiwjmu6JjUBU3AZCcddQrYq6Lnr6mPgP3r",
+  "treasuryPublicKey": "DDngT11XyxqbYi38nNv1sDNxw1K4er1WHQb7EyAQhcgg",
+  "deployedAt": "2026-10-21T12:29:17.328Z"
+}

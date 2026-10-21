@@ -1,0 +1,16 @@
+{
+  "name": "@vectra/pay-sdk",
+  "version": "1.0.0",
+  "description": "Official JavaScript/TypeScript SDK for Vectra ($VCTR) Decentralized AI Payments",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ../../test/protocol.test.js"
+  },
+  "keywords": ["solana", "token-2022", "vectra", "ai-payment", "http402"],
+  "author": "Vectra Protocol Foundation",
+  "license": "MIT",
+  "dependencies": {
+    "@solana/spl-token": "^0.4.8",
+    "@solana/web3.js": "^1.95.8"
+  }
+}

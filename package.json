@@ -1,0 +1,35 @@
+{
+  "name": "vectra-protocol",
+  "version": "1.0.0",
+  "description": "Vectra ($VCTR) - Universal Payment Currency & Subscription Pass for Major AI Platforms on Solana",
+  "main": "index.js",
+  "scripts": {
+    "setup:keys": "node scripts/generate-keys.js",
+    "view:keys": "node scripts/view-keys.js",
+    "test": "node test/protocol.test.js",
+    "deploy:token": "node scripts/create-vectra-token.js",
+    "test:transfer": "node scripts/test-transfer.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "solana",
+    "ai",
+    "crypto",
+    "token-2022",
+    "openai",
+    "depin",
+    "payment"
+  ],
+  "author": "Vectra Protocol Foundation",
+  "license": "MIT",
+  "dependencies": {
+    "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
+    "@metaplex-foundation/umi-bundle-defaults": "^1.6.0",
+    "@solana/spl-token": "^0.4.8",
+    "@solana/web3.js": "^1.95.8",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "https-proxy-agent": "^9.1.0",
+    "undici": "^8.12.3"
+  }
+}
