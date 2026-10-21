@@ -7,8 +7,10 @@ export const translations = {
       networkBadge: 'Solana Devnet',
       connectWallet: 'Connect Phantom',
       connected: 'Connected',
+      disconnect: 'Disconnect',
       whitepaper: 'Whitepaper',
       pitchDeck: 'Pitch Deck',
+      faucet: 'Faucet',
       github: 'GitHub',
     },
     hero: {
@@ -129,8 +131,10 @@ export const translations = {
       networkBadge: 'Solana Devnet 测试网',
       connectWallet: '连接 Phantom 钱包',
       connected: '已连接',
+      disconnect: '断开连接',
       whitepaper: '技术白皮书',
       pitchDeck: '商业路演',
+      faucet: '测试网水龙头',
       github: '开源代码',
     },
     hero: {

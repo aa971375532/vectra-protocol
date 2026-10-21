@@ -19,6 +19,13 @@ import {
   Sparkles,
   Copy,
   Droplets,
+  LogOut,
+  BookOpen,
+  Presentation,
+  Languages,
+  ShieldCheck,
+  TrendingDown,
+  ArrowLeftRight,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -68,67 +75,125 @@ export default function App() {
   const [faucetError, setFaucetError] = useState(null);
   const [copiedCli, setCopiedCli] = useState(false);
 
-  // 初始化监听 Phantom 钱包事件
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.solana) {
-      if (window.solana.isConnected && window.solana.publicKey) {
-        setWalletAddress(window.solana.publicKey.toString());
-      }
+  const GITHUB_REPO = 'https://github.com/aa971375532/vectra-protocol';
 
-      const handleAccountChange = (publicKey) => {
-        if (publicKey) {
-          setWalletAddress(publicKey.toString());
-        } else {
-          setWalletAddress(null);
-        }
-      };
+  // 技术文档与白皮书官方在线链接 (确保 100% 正常渲染且永不 404)
+  const getWhitepaperUrl = (targetLang) => {
+    const file = targetLang === 'en' ? 'VECTRA_WHITEPAPER_EN.md' : 'VECTRA_WHITEPAPER_CN.md';
+    return `${GITHUB_REPO}/blob/main/${file}`;
+  };
 
-      const handleDisconnect = () => {
-        setWalletAddress(null);
-      };
+  const getPitchDeckUrl = () => `${GITHUB_REPO}/blob/main/PITCH_DECK.md`;
 
-      window.solana.on('accountChanged', handleAccountChange);
-      window.solana.on('disconnect', handleDisconnect);
-
-      return () => {
-        window.solana.removeListener('accountChanged', handleAccountChange);
-        window.solana.removeListener('disconnect', handleDisconnect);
-      };
+  // 通用版 Solana / Phantom 钱包检测函数
+  const getSolanaProvider = () => {
+    if (typeof window === 'undefined') return null;
+    if ('phantom' in window && window.phantom?.solana?.isPhantom) {
+      return window.phantom.solana;
     }
+    if ('solana' in window) {
+      return window.solana;
+    }
+    return null;
+  };
+
+  // 初始化监听钱包事件与会话恢复
+  useEffect(() => {
+    const provider = getSolanaProvider();
+    if (!provider) return;
+
+    // 仅当用户此前主动连接过时，才尝试无感静默恢复连接 (onlyIfTrusted)
+    if (localStorage.getItem('vectra_wallet_connected') === 'true') {
+      if (typeof provider.connect === 'function') {
+        provider
+          .connect({ onlyIfTrusted: true })
+          .then((resp) => {
+            if (resp && resp.publicKey) {
+              const addr = resp.publicKey.toString();
+              setWalletAddress(addr);
+              setFaucetAddress(addr);
+            }
+          })
+          .catch(() => {
+            localStorage.removeItem('vectra_wallet_connected');
+          });
+      }
+    }
+
+    const handleAccountChange = (publicKey) => {
+      if (publicKey) {
+        const addr = publicKey.toString();
+        setWalletAddress(addr);
+        setFaucetAddress(addr);
+      } else {
+        setWalletAddress(null);
+        localStorage.removeItem('vectra_wallet_connected');
+      }
+    };
+
+    const handleDisconnect = () => {
+      setWalletAddress(null);
+      localStorage.removeItem('vectra_wallet_connected');
+    };
+
+    if (typeof provider.on === 'function') {
+      provider.on('accountChanged', handleAccountChange);
+      provider.on('disconnect', handleDisconnect);
+    }
+
+    return () => {
+      if (typeof provider.removeListener === 'function') {
+        provider.removeListener('accountChanged', handleAccountChange);
+        provider.removeListener('disconnect', handleDisconnect);
+      }
+    };
   }, []);
 
-  // 真实连接 Phantom 钱包
+  // 连接 Phantom 钱包 (通用版逻辑，必定唤起 Phantom 插件弹窗)
   const connectWallet = async () => {
-    if (typeof window === 'undefined') return;
+    const provider = getSolanaProvider();
 
-    if (!window.solana || !window.solana.isPhantom) {
-      alert(
+    if (!provider) {
+      const confirmDownload = window.confirm(
         lang === 'en'
-          ? '⚠️ Phantom wallet extension not detected! Opening download page...'
-          : '⚠️ 未检测到 Phantom 钱包扩展，正在为你打开官网...'
+          ? 'Phantom wallet extension not detected. Would you like to visit phantom.app to install it?'
+          : '未检测到 Phantom 钱包扩展。是否前往 phantom.app 官网下载安装？'
       );
-      window.open('https://phantom.app/', '_blank');
-      return;
-    }
-
-    if (walletAddress) {
-      try {
-        await window.solana.disconnect();
-        setWalletAddress(null);
-      } catch (err) {
-        console.error('Disconnect error:', err);
+      if (confirmDownload) {
+        window.open('https://phantom.app/', '_blank');
       }
       return;
     }
 
     try {
       setIsConnecting(true);
-      const resp = await window.solana.connect();
-      setWalletAddress(resp.publicKey.toString());
+      // 显式调用 connect() 必定唤起 Phantom 插件弹窗
+      const resp = await provider.connect();
+      if (resp && resp.publicKey) {
+        const addr = resp.publicKey.toString();
+        setWalletAddress(addr);
+        setFaucetAddress(addr);
+        localStorage.setItem('vectra_wallet_connected', 'true');
+      }
     } catch (err) {
-      console.warn('User rejected connection:', err);
+      console.warn('Wallet connection cancelled or rejected by user:', err);
     } finally {
       setIsConnecting(false);
+    }
+  };
+
+  // 退出并彻底断开钱包连接
+  const disconnectWallet = async () => {
+    try {
+      const provider = getSolanaProvider();
+      if (provider && typeof provider.disconnect === 'function') {
+        await provider.disconnect();
+      }
+    } catch (err) {
+      console.warn('Disconnect error:', err);
+    } finally {
+      setWalletAddress(null);
+      localStorage.removeItem('vectra_wallet_connected');
     }
   };
 
@@ -261,6 +326,44 @@ export default function App() {
             </div>
           </div>
 
+          {/* 桌面端导航链接 */}
+          <nav className="hidden lg:flex items-center space-x-6 text-xs font-medium text-slate-300">
+            <a
+              href={getWhitepaperUrl(lang)}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center hover:text-white transition-colors py-1 group"
+            >
+              <BookOpen className="h-3.5 w-3.5 mr-1.5 text-purple-400 group-hover:text-purple-300" />
+              {t.nav.whitepaper}
+            </a>
+            <a
+              href={getPitchDeckUrl()}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center hover:text-white transition-colors py-1 group"
+            >
+              <Presentation className="h-3.5 w-3.5 mr-1.5 text-cyan-400 group-hover:text-cyan-300" />
+              {t.nav.pitchDeck}
+            </a>
+            <a
+              href="#faucet"
+              className="flex items-center hover:text-white transition-colors py-1 group"
+            >
+              <Droplets className="h-3.5 w-3.5 mr-1.5 text-blue-400 group-hover:text-blue-300" />
+              {t.nav.faucet}
+            </a>
+            <a
+              href={GITHUB_REPO}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center hover:text-white transition-colors py-1 group"
+            >
+              <Code2 className="h-3.5 w-3.5 mr-1.5 text-slate-400 group-hover:text-slate-200" />
+              {t.nav.github}
+            </a>
+          </nav>
+
           {/* 右侧控制栏 */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             
@@ -277,23 +380,42 @@ export default function App() {
               onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
               className="text-xs font-semibold px-3 py-1.5 rounded-full border-white/10 bg-slate-900/60 hover:bg-slate-800 backdrop-blur-md"
             >
-              <Globe className="h-3.5 w-3.5 mr-1.5 text-purple-400" />
+              <Languages className="h-3.5 w-3.5 mr-1.5 text-purple-400" />
               {lang === 'en' ? '中文' : 'English'}
             </Button>
 
-            {/* 真实 Phantom 钱包连接按钮 */}
-            <Button
-              variant="default"
-              size="sm"
-              onClick={connectWallet}
-              disabled={isConnecting}
-              className="rounded-xl font-medium shadow-lg shadow-purple-600/30 hover:scale-[1.02] transition-transform"
-            >
-              <Wallet className="h-4 w-4 mr-1.5" />
-              {walletAddress
-                ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)} (${t.nav.connected})`
-                : t.nav.connectWallet}
-            </Button>
+            {/* 通用版 Phantom 钱包连接与断开控制 */}
+            {!walletAddress ? (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={connectWallet}
+                disabled={isConnecting}
+                className="rounded-xl font-medium shadow-lg shadow-purple-600/30 hover:scale-[1.02] transition-transform bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500"
+              >
+                <Wallet className="h-4 w-4 mr-1.5" />
+                {isConnecting
+                  ? (lang === 'en' ? 'Connecting...' : '正在连接...')
+                  : t.nav.connectWallet}
+              </Button>
+            ) : (
+              <div className="flex items-center space-x-1.5 bg-slate-900/90 border border-emerald-500/40 rounded-xl px-2.5 py-1 backdrop-blur-md shadow-md shadow-emerald-950/40">
+                <div className="flex items-center space-x-1.5 text-xs font-mono text-emerald-300 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>{walletAddress.slice(0, 4)}...{walletAddress.slice(-4)}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={disconnectWallet}
+                  title={t.nav.disconnect}
+                  className="h-7 px-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 ml-1 text-xs font-medium transition-colors"
+                >
+                  <LogOut className="h-3.5 w-3.5 mr-1" />
+                  <span className="hidden sm:inline">{t.nav.disconnect}</span>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </header>
@@ -335,12 +457,13 @@ export default function App() {
               className="rounded-xl border-white/10 bg-slate-900/60 hover:bg-slate-800/80 backdrop-blur-md px-6 py-3 text-sm"
             >
               <a
-                href={lang === 'en' ? '/VECTRA_WHITEPAPER_EN.md' : '/VECTRA_WHITEPAPER_CN.md'}
+                href={getWhitepaperUrl(lang)}
                 target="_blank"
                 rel="noreferrer"
               >
+                <BookOpen className="h-4 w-4 mr-2 text-purple-400" />
                 {t.hero.btnWhitepaper}
-                <ExternalLink className="h-4 w-4 ml-2 text-slate-400" />
+                <ExternalLink className="h-3.5 w-3.5 ml-2 text-slate-400" />
               </a>
             </Button>
             <Button
@@ -416,7 +539,7 @@ export default function App() {
             <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
               <span className="font-medium">{t.metrics.transferTax}</span>
               <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-                <Percent className="h-4 w-4" />
+                <ArrowLeftRight className="h-4 w-4" />
               </div>
             </div>
             <div className="text-3xl font-extrabold font-mono text-cyan-400 mb-2 tracking-tight">
@@ -444,7 +567,7 @@ export default function App() {
 
           <div className="card-glass card-glass-emerald rounded-2xl p-7">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-5">
-              <Globe className="h-6 w-6" />
+              <ShieldCheck className="h-6 w-6" />
             </div>
             <h3 className="text-lg font-bold text-slate-100 mb-2.5">{t.features.f2Title}</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
@@ -454,7 +577,7 @@ export default function App() {
 
           <div className="card-glass card-glass-cyan rounded-2xl p-7">
             <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-5">
-              <Zap className="h-6 w-6" />
+              <TrendingDown className="h-6 w-6" />
             </div>
             <h3 className="text-lg font-bold text-slate-100 mb-2.5">{t.features.f3Title}</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
@@ -857,20 +980,25 @@ export default function App() {
       <footer className="border-t border-white/[0.08] bg-[#030712]/80 py-8 text-xs text-slate-500 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>{t.footer.copyright}</div>
-          <div className="flex space-x-6 text-slate-400">
-            <a href="https://github.com/aa971375532/vectra-protocol" target="_blank" rel="noreferrer" className="hover:text-white">
+          <div className="flex flex-wrap items-center gap-5 text-slate-400">
+            <a href={GITHUB_REPO} target="_blank" rel="noreferrer" className="hover:text-white flex items-center transition-colors">
+              <Code2 className="h-3.5 w-3.5 mr-1 text-slate-400" />
               {t.footer.openProtocol}
             </a>
-            <a href="/PITCH_DECK.md" target="_blank" rel="noreferrer" className="hover:text-white">
+            <a href={getPitchDeckUrl()} target="_blank" rel="noreferrer" className="hover:text-white flex items-center transition-colors">
+              <Presentation className="h-3.5 w-3.5 mr-1 text-cyan-400" />
               {t.footer.pitchDeck}
             </a>
-            <a href="/VECTRA_WHITEPAPER_CN.md" target="_blank" rel="noreferrer" className="hover:text-white">
+            <a href={getWhitepaperUrl('zh')} target="_blank" rel="noreferrer" className="hover:text-white flex items-center transition-colors">
+              <BookOpen className="h-3.5 w-3.5 mr-1 text-purple-400" />
               {t.footer.whitepaperCn}
             </a>
-            <a href="/VECTRA_WHITEPAPER_EN.md" target="_blank" rel="noreferrer" className="hover:text-white">
+            <a href={getWhitepaperUrl('en')} target="_blank" rel="noreferrer" className="hover:text-white flex items-center transition-colors">
+              <BookOpen className="h-3.5 w-3.5 mr-1 text-purple-400" />
               {t.footer.whitepaperEn}
             </a>
-            <a href="https://solana.com" target="_blank" rel="noreferrer" className="hover:text-white">
+            <a href="https://solana.com" target="_blank" rel="noreferrer" className="hover:text-white flex items-center transition-colors">
+              <ExternalLink className="h-3 w-3 mr-1 text-emerald-400" />
               {t.footer.solanaEco}
             </a>
           </div>
