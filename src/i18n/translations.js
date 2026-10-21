@@ -95,7 +95,7 @@ export const translations = {
       btnClaim: 'Claim 500 $VCTR',
       btnClaiming: 'Broadcasting on Solana...',
       rateLimitNotice:
-        'Free 500 $VCTR per claim • 10-minute cooldown per address • 0.20% on-chain fee automatically verified',
+        'Free 500 $VCTR per claim • 24-hour anti-spam cooldown per address • 0.20% on-chain fee verified',
       cliTip: 'CLI Developer Command:',
       successNet: 'Net Received:',
       successFee: 'On-Chain Fee (0.20%):',
@@ -219,7 +219,7 @@ export const translations = {
       btnClaim: '立即领取 500 $VCTR',
       btnClaiming: '正在广播上链...',
       rateLimitNotice:
-        '每次免费发放 500 $VCTR • 每地址限 10 分钟一次 • 链上自动执行 0.20% 磨损与销毁',
+        '每次免费发放 500 $VCTR • 每地址每 24 小时限领一次 (严格防刷) • 链上自动执行 0.20% 磨损与销毁',
       cliTip: '开发者命令行一键领水：',
       successNet: '实际到账：',
       successFee: '链上磨损 (0.20%)：',

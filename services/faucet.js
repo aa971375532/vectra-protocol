@@ -12,10 +12,53 @@ const {
 } = require('@solana/spl-token');
 const { fetch, ProxyAgent } = require('undici');
 
-// 速率限制记录表: 地址/IP -> 上次领取毫秒时间戳
-const claimRecords = new Map();
-const COOLDOWN_MS = 10 * 60 * 1000; // 10 分钟冷却时间
+// 增强型防刷机制: 24 小时严格冷却 + 本地持久化存储
+const COOLDOWN_HOURS = parseInt(process.env.FAUCET_COOLDOWN_HOURS || '24', 10);
+const COOLDOWN_MS = COOLDOWN_HOURS * 60 * 60 * 1000; // 默认 24 小时冷却时间 (86,400,000 ms)
 const FAUCET_AMOUNT_VCTR = 500; // 默认每次发放 500 $VCTR
+
+const CLAIMS_FILE = path.join(__dirname, '..', 'config', 'faucet-claims.json');
+
+// 从本地文件加载领水持久化记录
+function loadClaims() {
+  try {
+    if (fs.existsSync(CLAIMS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(CLAIMS_FILE, 'utf-8'));
+      return new Map(Object.entries(data));
+    }
+  } catch (err) {
+    console.warn('⚠️ 读取历史领水记录失败，将初始化新记录表:', err.message);
+  }
+  return new Map();
+}
+
+// 保存领水记录到本地文件 (防止服务重启后冷却失效)
+function saveClaims(records) {
+  try {
+    const obj = Object.fromEntries(records);
+    fs.writeFileSync(CLAIMS_FILE, JSON.stringify(obj, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('⚠️ 领水持久化写入失败:', err.message);
+  }
+}
+
+const claimRecords = loadClaims();
+
+// 格式化人性化倒计时显示
+function formatRemainingTime(remainingMs) {
+  const totalSeconds = Math.ceil(remainingMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (hours > 0) {
+    return `${hours} 小时 ${minutes} 分钟`;
+  }
+  if (minutes > 0) {
+    return `${minutes} 分钟 ${seconds} 秒`;
+  }
+  return `${seconds} 秒`;
+}
 
 function getProxyDispatcher() {
   const proxyUrl = process.env.HTTP_PROXY || process.env.http_proxy || 'http://127.0.0.1:7897';
@@ -76,7 +119,7 @@ async function requestDevnetFaucet(recipientAddress, clientIp = '127.0.0.1', amo
     throw new Error('无效的 Solana 钱包公钥地址');
   }
 
-  // 2. 检查频率限制 (按地址和 IP)
+  // 2. 严格频率限制 (按地址和 IP 限制 24 小时)
   const now = Date.now();
   const addressKey = `addr:${recipientAddress}`;
   const ipKey = `ip:${clientIp}`;
@@ -85,12 +128,12 @@ async function requestDevnetFaucet(recipientAddress, clientIp = '127.0.0.1', amo
   const lastIpClaim = claimRecords.get(ipKey) || 0;
 
   if (now - lastAddressClaim < COOLDOWN_MS) {
-    const remainingSeconds = Math.ceil((COOLDOWN_MS - (now - lastAddressClaim)) / 1000);
-    throw new Error(`该钱包地址领水冷却中，请在 ${remainingSeconds} 秒后再试`);
+    const remainingMs = COOLDOWN_MS - (now - lastAddressClaim);
+    throw new Error(`防刷限制：该钱包每 ${COOLDOWN_HOURS} 小时限领一次，当前仍在冷却中，请在 ${formatRemainingTime(remainingMs)} 后再试`);
   }
   if (clientIp !== '127.0.0.1' && (now - lastIpClaim < COOLDOWN_MS)) {
-    const remainingSeconds = Math.ceil((COOLDOWN_MS - (now - lastIpClaim)) / 1000);
-    throw new Error(`当前 IP 领水冷却中，请在 ${remainingSeconds} 秒后再试`);
+    const remainingMs = COOLDOWN_MS - (now - lastIpClaim);
+    throw new Error(`防刷限制：当前 IP 每 ${COOLDOWN_HOURS} 小时限领一次，当前仍在冷却中，请在 ${formatRemainingTime(remainingMs)} 后再试`);
   }
 
   // 3. 读取部署配置与密钥
@@ -169,9 +212,10 @@ async function requestDevnetFaucet(recipientAddress, clientIp = '127.0.0.1', amo
   const serialized = tx.serialize().toString('base64');
   const signature = await solanaRpc('sendTransaction', [serialized, { encoding: 'base64', skipPreflight: false }]);
 
-  // 8. 记录冷却时间
+  // 8. 记录冷却时间并持久化到本地文件
   claimRecords.set(addressKey, now);
   claimRecords.set(ipKey, now);
+  saveClaims(claimRecords);
 
   const grossUi = amount;
   const feeUi = Number(feeAmount) / (10 ** decimals);
@@ -186,8 +230,9 @@ async function requestDevnetFaucet(recipientAddress, clientIp = '127.0.0.1', amo
     feeAmount: feeUi,
     netReceivedAmount: netUi,
     ataCreated,
+    cooldownHours: COOLDOWN_HOURS,
     explorerUrl: `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
-    message: `🎉 成功发放 ${grossUi} $VCTR！链上扣除 0.20% (${feeUi} $VCTR) 手续费，净到账 ${netUi} $VCTR。`,
+    message: `🎉 成功发放 ${grossUi} $VCTR！链上扣除 0.20% (${feeUi} $VCTR) 手续费，净到账 ${netUi} $VCTR (冷却时间: 24 小时)。`,
   };
 }
 
@@ -195,4 +240,5 @@ module.exports = {
   requestDevnetFaucet,
   FAUCET_AMOUNT_VCTR,
   COOLDOWN_MS,
+  COOLDOWN_HOURS,
 };

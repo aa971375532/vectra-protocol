@@ -80,6 +80,13 @@ async function main() {
     assert.strictEqual(threw, true);
   });
 
+  // 测试 6: 水龙头 24 小时防刷冷却参数与时间配置检验
+  await runTest('水龙头 24 小时严格防刷冷却机制 (86,400 秒)', () => {
+    const { COOLDOWN_HOURS, COOLDOWN_MS } = require('../services/faucet');
+    assert.strictEqual(COOLDOWN_HOURS, 24);
+    assert.strictEqual(COOLDOWN_MS, 86400000);
+  });
+
   console.log(`\n🎉 全部 ${passedTests} 项协议测试全部通过！所有数学与逻辑模型严格对齐设计白皮书。\n`);
 }
 

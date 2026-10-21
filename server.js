@@ -4,7 +4,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const { requestDevnetFaucet, FAUCET_AMOUNT_VCTR, COOLDOWN_MS } = require('./services/faucet');
+const { requestDevnetFaucet, FAUCET_AMOUNT_VCTR, COOLDOWN_MS, COOLDOWN_HOURS } = require('./services/faucet');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -123,6 +123,7 @@ app.get('/api/faucet/info', (req, res) => {
     network: deployment.network || 'devnet',
     mint: deployment.vectraMintAddress,
     faucetAmount: FAUCET_AMOUNT_VCTR,
+    cooldownHours: COOLDOWN_HOURS,
     cooldownMinutes: Math.round(COOLDOWN_MS / 60000),
   });
 });
