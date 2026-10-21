@@ -124,6 +124,8 @@ async function requestDevnetFaucet(recipientAddress, clientIp = '127.0.0.1', amo
   const addressKey = `addr:${recipientAddress}`;
   const ipKey = `ip:${clientIp}`;
 
+  const isLocalhost = !clientIp || clientIp === '127.0.0.1' || clientIp === '::1' || clientIp === '::ffff:127.0.0.1' || clientIp === 'localhost';
+
   const lastAddressClaim = claimRecords.get(addressKey) || 0;
   const lastIpClaim = claimRecords.get(ipKey) || 0;
 
@@ -131,7 +133,7 @@ async function requestDevnetFaucet(recipientAddress, clientIp = '127.0.0.1', amo
     const remainingMs = COOLDOWN_MS - (now - lastAddressClaim);
     throw new Error(`防刷限制：该钱包每 ${COOLDOWN_HOURS} 小时限领一次，当前仍在冷却中，请在 ${formatRemainingTime(remainingMs)} 后再试`);
   }
-  if (clientIp !== '127.0.0.1' && (now - lastIpClaim < COOLDOWN_MS)) {
+  if (!isLocalhost && (now - lastIpClaim < COOLDOWN_MS)) {
     const remainingMs = COOLDOWN_MS - (now - lastIpClaim);
     throw new Error(`防刷限制：当前 IP 每 ${COOLDOWN_HOURS} 小时限领一次，当前仍在冷却中，请在 ${formatRemainingTime(remainingMs)} 后再试`);
   }
@@ -214,7 +216,9 @@ async function requestDevnetFaucet(recipientAddress, clientIp = '127.0.0.1', amo
 
   // 8. 记录冷却时间并持久化到本地文件
   claimRecords.set(addressKey, now);
-  claimRecords.set(ipKey, now);
+  if (!isLocalhost) {
+    claimRecords.set(ipKey, now);
+  }
   saveClaims(claimRecords);
 
   const grossUi = amount;

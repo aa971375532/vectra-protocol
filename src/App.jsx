@@ -262,6 +262,8 @@ export default function App() {
     setFaucetResult(null);
 
     try {
+      const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
+
       let response;
       try {
         response = await fetch('/api/faucet', {
@@ -269,17 +271,38 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ recipientAddress: target, amount: 500 }),
         });
-      } catch (err) {
-        response = await fetch('http://localhost:3000/api/faucet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ recipientAddress: target, amount: 500 }),
-        });
+      } catch (networkErr) {
+        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+          response = await fetch('http://localhost:3000/api/faucet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipientAddress: target, amount: 500 }),
+          });
+        } else {
+          throw networkErr;
+        }
+      }
+
+      if (response && response.status === 404 && isGitHubPages) {
+        throw new Error(
+          lang === 'en'
+            ? 'GitHub Pages is a static showcase (backend private keys are protected and not exposed client-side). Please copy the CLI command on the right to claim instantly via terminal, or start the local node server at http://localhost:3000 for 1-click web claims!'
+            : '当前 GitHub Pages 属于纯静态演示站（为保障创始人金库私钥绝对安全，链上签名服务运行于独立安全节点）。您可以复制右侧 CLI 命令 `npm run faucet` 在终端一键秒领，或在本地启动 (http://localhost:3000) 即可直接在网页上一键领取！'
+        );
+      }
+
+      const contentType = (response && response.headers.get('content-type')) || '';
+      if (!contentType.includes('application/json')) {
+        throw new Error(
+          lang === 'en'
+            ? 'Faucet backend service unreachable. Please ensure `node server.js` is running.'
+            : '水龙头签名服务未响应，请确保本地 `node server.js` 正在运行。'
+        );
       }
 
       const data = await response.json();
       if (!response.ok || data.error) {
-        throw new Error(data.error || 'Faucet claim failed');
+        throw new Error(data.error || (lang === 'en' ? 'Faucet claim failed' : '水龙头领取失败'));
       }
       setFaucetResult(data);
     } catch (err) {
