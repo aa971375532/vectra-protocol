@@ -83,16 +83,16 @@ async function main() {
   const solBalance = (balanceRes?.value || 0) / 1e9;
   console.log(`- 部署者当前主网 SOL 余额: ${solBalance} SOL`);
 
-  const ESTIMATED_SOL = 0.03;
+  const ESTIMATED_SOL = 0.0037;
   if (solBalance < ESTIMATED_SOL) {
-    console.warn(`\n⚠️ 部署者钱包主网 SOL 余额不足 (${solBalance} SOL < 建议值 ${ESTIMATED_SOL} SOL)。`);
-    console.log(`请向以下地址充值至少 0.05 SOL 作为主网租金与手续费后重试：`);
+    console.warn(`\n⚠️ 部署者钱包主网 SOL 余额不足 (${solBalance} SOL < 最低需约 ${ESTIMATED_SOL} SOL)。`);
+    console.log(`请向以下地址充值至少 0.001 SOL 补足零头后重试：`);
     console.log(`👉 ${founder.publicKey.toBase58()}`);
-    console.log('\n提示: 当前处于安全预检模式，未执行链上扣款。充值完毕后执行 `npm run deploy:mainnet` 即可。');
+    console.log('\n提示: 当前处于安全预检模式，未执行链上扣款。');
     process.exit(0);
   }
 
-  console.log('\n[1/4] 生成全新 Mainnet 代币 Mint 密钥对...');
+  console.log('\n[1/3] 生成全新 Mainnet 代币 Mint 密钥对并计算账户租金...');
   const mintKeypair = Keypair.generate();
   const decimals = 9;
   const feeBasisPoints = 20; // 0.20%
@@ -103,8 +103,16 @@ async function main() {
   const rentRes = await solanaRpc(rpcUrl, 'getMinimumBalanceForRentExemption', [mintLen]);
   const lamports = rentRes;
 
-  console.log('\n[2/4] 构建并广播初始化 Mint 与 0.20% 手续费配置交易...');
-  const tx1 = new Transaction().add(
+  const founderAta = getAssociatedTokenAddressSync(
+    mintKeypair.publicKey,
+    founder.publicKey,
+    false,
+    TOKEN_2022_PROGRAM_ID
+  );
+  const TOTAL_SUPPLY_RAW = BigInt(1_000_000_000) * BigInt(10 ** decimals);
+
+  console.log('\n[2/3] 构建单笔原子化主网交易 (创建Mint + 0.20%费率配置 + 铸造10亿枚 + 销毁铸币权)...');
+  const tx = new Transaction().add(
     SystemProgram.createAccount({
       fromPubkey: founder.publicKey,
       newAccountPubkey: mintKeypair.publicKey,
@@ -114,8 +122,8 @@ async function main() {
     }),
     createInitializeTransferFeeConfigInstruction(
       mintKeypair.publicKey,
-      treasuryPubkey, // 费率管理权限 -> 协议金库
-      treasuryPubkey, // 提取暂扣费权限 -> 协议金库
+      treasuryPubkey,
+      treasuryPubkey,
       feeBasisPoints,
       maxFee,
       TOKEN_2022_PROGRAM_ID
@@ -123,34 +131,10 @@ async function main() {
     createInitializeMintInstruction(
       mintKeypair.publicKey,
       decimals,
-      founder.publicKey, // 初始铸币权限 (铸造完即销毁)
-      null,              // 冻结权限永久置空 (100% Rug-proof)
+      founder.publicKey,
+      null,
       TOKEN_2022_PROGRAM_ID
-    )
-  );
-
-  const hashRes1 = await solanaRpc(rpcUrl, 'getLatestBlockhash', [{ commitment: 'confirmed' }]);
-  tx1.recentBlockhash = hashRes1.value.blockhash;
-  tx1.feePayer = founder.publicKey;
-  tx1.sign(founder, mintKeypair);
-
-  const sig1 = await solanaRpc(rpcUrl, 'sendTransaction', [
-    tx1.serialize().toString('base64'),
-    { encoding: 'base64' },
-  ]);
-  console.log(`  ✅ Mint 创建完成! Tx: ${sig1}`);
-
-  console.log('\n[3/4] 创建创始人金库 ATA 并一次性铸造 10 亿枚硬顶总量...');
-  const founderAta = getAssociatedTokenAddressSync(
-    mintKeypair.publicKey,
-    founder.publicKey,
-    false,
-    TOKEN_2022_PROGRAM_ID
-  );
-
-  const TOTAL_SUPPLY_RAW = BigInt(1_000_000_000) * BigInt(10 ** decimals);
-
-  const tx2 = new Transaction().add(
+    ),
     createAssociatedTokenAccountInstruction(
       founder.publicKey,
       founderAta,
@@ -166,7 +150,6 @@ async function main() {
       [],
       TOKEN_2022_PROGRAM_ID
     ),
-    // 永久放弃铸币权 (Hard Cap 锁死，不可超发)
     createSetAuthorityInstruction(
       mintKeypair.publicKey,
       founder.publicKey,
@@ -177,16 +160,17 @@ async function main() {
     )
   );
 
-  const hashRes2 = await solanaRpc(rpcUrl, 'getLatestBlockhash', [{ commitment: 'confirmed' }]);
-  tx2.recentBlockhash = hashRes2.value.blockhash;
-  tx2.feePayer = founder.publicKey;
-  tx2.sign(founder);
+  const hashRes = await solanaRpc(rpcUrl, 'getLatestBlockhash', [{ commitment: 'confirmed' }]);
+  tx.recentBlockhash = hashRes.value.blockhash;
+  tx.feePayer = founder.publicKey;
+  tx.sign(founder, mintKeypair);
 
-  const sig2 = await solanaRpc(rpcUrl, 'sendTransaction', [
-    tx2.serialize().toString('base64'),
+  console.log('\n[3/3] 广播主网交易...');
+  const sig = await solanaRpc(rpcUrl, 'sendTransaction', [
+    tx.serialize().toString('base64'),
     { encoding: 'base64' },
   ]);
-  console.log(`  ✅ 1,000,000,000 $VCTR 铸造完毕且铸币权已永久销毁! Tx: ${sig2}`);
+  console.log(`  ✅ 主网代币部署与 1,000,000,000 $VCTR 铸造完成! Tx: ${sig}`);
 
   const mainnetDeployInfo = {
     network: 'mainnet-beta',

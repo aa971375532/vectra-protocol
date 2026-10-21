@@ -12,3 +12,12 @@ __pycache__/
 *.egg-info/
 python-sdk/dist/
 python-sdk/build/
+
+transfer-helper.html
+helper-server.js
+src_browser_transfer.js
+public_transfer_bundle.js
+promo-banner.html
+promo_banner.png
+
+config/faucet-dispenser.json

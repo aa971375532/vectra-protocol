@@ -10,9 +10,9 @@
 
   <p>
     <a href="https://aa971375532.github.io/vectra-protocol/"><img src="https://img.shields.io/badge/Live%20Portal-Online-00f2fe?style=flat-square&logo=googlechrome" alt="Live Portal" /></a>
+    <a href="https://explorer.solana.com/address/79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4"><img src="https://img.shields.io/badge/Solana%20Mainnet-79NqWz...JFh4-14F195?style=flat-square&logo=solana" alt="Mainnet Token" /></a>
     <a href="https://aa971375532.github.io/vectra-protocol/#faucet"><img src="https://img.shields.io/badge/Devnet%20Faucet-500%20$VCTR-10b981?style=flat-square" alt="Faucet" /></a>
     <a href="https://x.com/shenmolian4/status/2112949960765481183"><img src="https://img.shields.io/badge/X%20Twitter-Official%20Announcement-000000?style=flat-square&logo=x" alt="Twitter" /></a>
-    <a href="https://solana.com"><img src="https://img.shields.io/badge/Blockchain-Solana-9945FF?style=flat-square&logo=solana" alt="Solana" /></a>
     <a href="https://spl.solana.com/token-2022"><img src="https://img.shields.io/badge/Standard-SPL%20Token--2022-14F195?style=flat-square" alt="Token-2022" /></a>
     <a href="https://github.com/solana-foundation/awesome-solana-ai/pull/267"><img src="https://img.shields.io/badge/Solana%20Ecosystem-awesome--solana--ai%20%23267-purple?style=flat-square&logo=github" alt="Solana AI PR" /></a>
     <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License" /></a>
@@ -51,6 +51,9 @@ It provides a universal, native payment medium designed to be integrated directl
 | **Total Supply** | **1,000,000,000 $VCTR (Fixed Hard-Cap, Zero Inflation)** |
 | **Merchant Settlement Fee** | **0.20%** (50% Burned, 50% Treasury) |
 | **P2P Transfer / DEX Tax** | **0.00%** (Zero friction) |
+| **Mainnet Mint Address** | [`79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4`](https://explorer.solana.com/address/79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4) |
+| **Mint Authority** | **Permanently Revoked (null)** 🔒 |
+| **Freeze Authority** | **Permanently Revoked (null)** 🔒 |
 | **Devnet Mint Address** | `8aGGfyBvgeiq9WbyZRbgYSKkXhnYymNVh7oMw2ju4t14` |
 
 ---

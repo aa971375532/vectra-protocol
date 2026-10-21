@@ -10,6 +10,7 @@
 
   <p>
     <a href="https://aa971375532.github.io/vectra-protocol/"><img src="https://img.shields.io/badge/官方门户-在线体验-00f2fe?style=flat-square&logo=googlechrome" alt="Live Portal" /></a>
+    <a href="https://explorer.solana.com/address/79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4"><img src="https://img.shields.io/badge/Solana%E4%B8%BB%E7%BD%91-79NqWz...JFh4-14F195?style=flat-square&logo=solana" alt="Mainnet Token" /></a>
     <a href="https://aa971375532.github.io/vectra-protocol/#faucet"><img src="https://img.shields.io/badge/测试水龙头-领取500$VCTR-10b981?style=flat-square" alt="Faucet" /></a>
     <a href="https://x.com/shenmolian4/status/2112949960765481183"><img src="https://img.shields.io/badge/X%20Twitter-官方首发推文-000000?style=flat-square&logo=x" alt="Twitter" /></a>
     <a href="https://solana.com"><img src="https://img.shields.io/badge/区块链-Solana-9945FF?style=flat-square&logo=solana" alt="Solana" /></a>
@@ -51,6 +52,9 @@ Vectra 致力于直接内嵌进全球主流 AI 平台（如 OpenAI、Claude、Mi
 | **总发行量** | **1,000,000,000 $VCTR (10 亿枚恒定上限，永不增发)** |
 | **商户结算手续费** | **0.20%** (50% 销毁 + 50% 协议金库) |
 | **普通转账 / DEX 税率** | **0.00%** (零摩擦流通) |
+| **主网官方 Mint 地址** | [`79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4`](https://explorer.solana.com/address/79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4) |
+| **铸币权状态 (Mint Authority)** | **已永久彻底销毁 (null)** 🔒 |
+| **冻结权状态 (Freeze Authority)** | **已永久彻底销毁 (null)** 🔒 |
 | **Devnet 官方 Mint 地址** | `8aGGfyBvgeiq9WbyZRbgYSKkXhnYymNVh7oMw2ju4t14` |
 
 ---

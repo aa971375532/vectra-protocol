@@ -1,0 +1,15 @@
+{
+  "network": "mainnet-beta",
+  "programId": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+  "vectraMintAddress": "79NqWzXcrKsUfwWSv9wP2ZFeLvmRkUPoWyv8fEFxJFh4",
+  "decimals": 9,
+  "feeBasisPoints": 20,
+  "founderAta": "6LHdYJ2F6cYNTf8ZYp276V5uKixLdXe9JucTR3ME46pm",
+  "founderPublicKey": "CvKbQM81DgZpYufBJ8Z1mVxZRVAWqX6dEAPjKyy56CTg",
+  "treasuryPublicKey": "DDngT11XyxqbYi38nNv1sDNxw1K4er1WHQb7EyAQhcgg",
+  "mintAuthorityRevoked": true,
+  "freezeAuthorityRevoked": true,
+  "totalSupply": "1000000000",
+  "deploymentTx": "2EmWTTsM5nYUy5EYzpbRcoGEK4vCJP1KdJc7hTieV8EQyYuoYppYcouFtU2Ds4uQg5JfwKhfi7Kog43VfunGLbPy",
+  "deployedAt": "2026-10-21T17:57:19.000Z"
+}
