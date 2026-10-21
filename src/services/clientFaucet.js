@@ -1,14 +1,7 @@
 // src/services/clientFaucet.js
 // Vectra Protocol ($VCTR) 链上直连水龙头分发引擎 (无服务器、零后端依赖、100% 链上直发)
 
-import { Buffer } from 'buffer';
-if (typeof window !== 'undefined') {
-  window.Buffer = window.Buffer || Buffer;
-}
-if (typeof globalThis !== 'undefined') {
-  globalThis.Buffer = globalThis.Buffer || Buffer;
-}
-
+import '../buffer-polyfill.js';
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
 import {
   getAssociatedTokenAddressSync,
@@ -59,6 +52,19 @@ async function solanaRpc(method, params) {
 }
 
 export async function claimFaucetOnChain(recipientAddress, amount = 500) {
+  // 确保全球各浏览器环境中 Buffer 及其静态方法绝对就绪
+  if (typeof window !== 'undefined' && (!window.Buffer || typeof window.Buffer.alloc !== 'function')) {
+    try {
+      const poly = await import('../buffer-polyfill.js');
+      if (poly.Buffer) {
+        window.Buffer = poly.Buffer;
+        globalThis.Buffer = poly.Buffer;
+      }
+    } catch (e) {
+      console.warn('Fallback dynamic buffer polyfill error:', e);
+    }
+  }
+
   let recipientPubkey;
   try {
     recipientPubkey = new PublicKey(recipientAddress);
