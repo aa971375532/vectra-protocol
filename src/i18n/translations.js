@@ -3,6 +3,11 @@
 
 export const translations = {
   en: {
+    banner: {
+      tag: 'AIRDROP CAMPAIGN',
+      text: '🚀 Vectra Genesis Launch: Connect Phantom & claim 500 $VCTR to qualify for Mainnet Airdrop!',
+      action: 'Claim 500 $VCTR →',
+    },
     nav: {
       networkBadge: 'Solana Devnet',
       connectWallet: 'Connect Phantom',
@@ -127,6 +132,11 @@ export const translations = {
   },
 
   zh: {
+    banner: {
+      tag: '创世空投',
+      text: '🚀 Vectra 创世空投计划开启：连接 Phantom 领取 500 $VCTR 测试币，自动入选主网空投快照！',
+      action: '立即领水 →',
+    },
     nav: {
       networkBadge: 'Solana Devnet 测试网',
       connectWallet: '连接 Phantom 钱包',

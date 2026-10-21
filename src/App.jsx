@@ -305,6 +305,25 @@ export default function App() {
       <div className="ambient-glow-purple" />
       <div className="ambient-glow-emerald" />
 
+      {/* 顶部置顶推广与空投横幅 (Pinned Campaign Banner) */}
+      <div className="bg-gradient-to-r from-purple-950/90 via-slate-900/95 to-cyan-950/90 border-b border-purple-500/20 py-2.5 px-4 text-center text-xs font-medium text-slate-200 relative z-50 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+          <span className="inline-flex items-center gap-1 bg-purple-500/20 border border-purple-500/40 text-purple-300 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
+            <Sparkles className="h-3 w-3 text-purple-400" />
+            {t.banner.tag}
+          </span>
+          <span className="text-slate-300">
+            {t.banner.text}
+          </span>
+          <a
+            href="#faucet"
+            className="inline-flex items-center text-cyan-300 hover:text-cyan-200 font-bold underline transition-colors cursor-pointer ml-1"
+          >
+            {t.banner.action}
+          </a>
+        </div>
+      </div>
+
       {/* 顶部导航栏 (Navbar) */}
       <header className="border-b border-white/[0.08] bg-[#030712]/75 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
