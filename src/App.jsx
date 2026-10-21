@@ -274,38 +274,27 @@ export default function App() {
 
     try {
       const isGitHubPages = typeof window !== 'undefined' && window.location.hostname.endsWith('github.io');
-      const primaryApi = isGitHubPages
-        ? 'https://vectra-faucet-devnet.loca.lt/api/faucet'
-        : '/api/faucet';
 
-      let response;
-      try {
-        response = await fetch(primaryApi, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Bypass-Tunnel-Reminder': 'true',
-          },
-          body: JSON.stringify({ recipientAddress: target, amount: 500 }),
-        });
-      } catch (networkErr) {
-        if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-          response = await fetch('http://localhost:3000/api/faucet', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ recipientAddress: target, amount: 500 }),
-          });
-        } else {
-          throw networkErr;
-        }
+      if (isGitHubPages) {
+        throw new Error(
+          lang === 'en'
+            ? 'GitHub Pages is a static showcase (on-chain signing keys are kept safe on backend nodes). To claim 500 $VCTR instantly: 1) Run `npm run faucet ' + (target.slice(0, 4) + '...' + target.slice(-4)) + '` in terminal (recommended), or 2) Open http://localhost:3000 locally for 1-click web claims!'
+            : '当前线上站点为 GitHub Pages 纯静态展示站（为保障创始人金库私钥绝对安全，链上签名服务运行于独立安全节点）。秒领方式：① 复制右侧官方命令在本地终端运行即时到账（推荐）；② 直接在浏览器打开本地服务 http://localhost:3000 即可在网页上一键领取！'
+        );
       }
+
+      let response = await fetch('/api/faucet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipientAddress: target, amount: 500 }),
+      });
 
       const contentType = (response && response.headers.get('content-type')) || '';
       if (!contentType.includes('application/json')) {
         throw new Error(
           lang === 'en'
-            ? 'Faucet backend service unreachable. Please retry or claim via terminal CLI command on the right.'
-            : '水龙头签名服务响应异常，请重试或通过右侧终端 CLI 命令行秒领。'
+            ? 'Faucet backend service unreachable. Please ensure `node server.js` is running on port 3000.'
+            : '本地水龙头签名服务未响应，请确保本地 `node server.js` 正在运行。'
         );
       }
 
@@ -603,14 +592,14 @@ export default function App() {
             </p>
 
             <div className="p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-xs text-cyan-200 flex items-start gap-2.5">
-              <Sparkles className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+              <Sparkles className="h-4 w-4 text-cyan-400 shrink-0 mt-0.5" />
               <div className="leading-relaxed">
-                <span className="font-semibold text-emerald-300">
-                  {lang === 'en' ? 'Live Faucet Online: ' : '🟢 链上水龙头已在线：'}
+                <span className="font-semibold text-cyan-300">
+                  {lang === 'en' ? 'Devnet Faucet Guide: ' : '🚰 Devnet 领水指引：'}
                 </span>
                 {lang === 'en'
-                  ? 'Devnet Faucet is connected and active. Enter your Solana wallet address below to claim 500 $VCTR instantly!'
-                  : 'Solana Devnet 签名节点已连接！在下方输入您的 Solana 钱包公钥地址即可一键秒领 500 $VCTR（每地址 24 小时限领一次）！'}
+                  ? 'Devnet testnet tokens are distributed via secure on-chain signers. You can copy the official CLI command on the right to claim in 2 seconds, or visit your local node at http://localhost:3000!'
+                  : '测试币发放由独立签名引擎实时校验。开发者可直接复制右侧官方 CLI 命令行在终端 2 秒极速秒领，或在本地浏览器访问 http://localhost:3000 享受网页一键秒领！'}
               </div>
             </div>
           </div>
