@@ -142,12 +142,47 @@ async function requestDevnetFaucet(recipientAddress, clientIp = '127.0.0.1', amo
   const keysPath = path.join(__dirname, '..', 'config', 'keys.json');
   const deployPath = path.join(__dirname, '..', 'config', 'deployment.json');
 
-  if (!fs.existsSync(keysPath) || !fs.existsSync(deployPath)) {
-    throw new Error('未检测到水龙头服务端配置文件 (keys.json / deployment.json)');
+  let keys;
+  if (process.env.FOUNDER_SECRET_KEY) {
+    try {
+      const rawSecret = typeof process.env.FOUNDER_SECRET_KEY === 'string'
+        ? JSON.parse(process.env.FOUNDER_SECRET_KEY)
+        : process.env.FOUNDER_SECRET_KEY;
+      keys = {
+        founderSecretKey: rawSecret,
+        founderPublicKey: process.env.FOUNDER_PUBLIC_KEY || 'CvKbQM81DgZpYufBJ8Z1mVxZRVAWqX6dEAPjKyy56CTg',
+      };
+    } catch (e) {
+      throw new Error('FOUNDER_SECRET_KEY 环境变量解析失败: ' + e.message);
+    }
+  } else if (fs.existsSync(keysPath)) {
+    keys = JSON.parse(fs.readFileSync(keysPath, 'utf-8'));
+  } else {
+    throw new Error('未检测到水龙头服务端密钥配置 (请在云端配置 FOUNDER_SECRET_KEY 环境变量或提供 keys.json)');
   }
 
-  const keys = JSON.parse(fs.readFileSync(keysPath, 'utf-8'));
-  const deploy = JSON.parse(fs.readFileSync(deployPath, 'utf-8'));
+  let deploy;
+  if (process.env.DEPLOYMENT_JSON) {
+    try {
+      deploy = JSON.parse(process.env.DEPLOYMENT_JSON);
+    } catch (e) {
+      deploy = {
+        vectraMintAddress: '8aGGfyBvgeiq9WbyZRbgYSKkXhnYymNVh7oMw2ju4t14',
+        founderAta: 'Bqe1g4C1ZQiwjmu6JjUBU3AZCcddQrYq6Lnr6mPgP3r',
+        decimals: 9,
+        feeBasisPoints: 20,
+      };
+    }
+  } else if (fs.existsSync(deployPath)) {
+    deploy = JSON.parse(fs.readFileSync(deployPath, 'utf-8'));
+  } else {
+    deploy = {
+      vectraMintAddress: '8aGGfyBvgeiq9WbyZRbgYSKkXhnYymNVh7oMw2ju4t14',
+      founderAta: 'Bqe1g4C1ZQiwjmu6JjUBU3AZCcddQrYq6Lnr6mPgP3r',
+      decimals: 9,
+      feeBasisPoints: 20,
+    };
+  }
 
   const founder = Keypair.fromSecretKey(new Uint8Array(keys.founderSecretKey));
   const mint = new PublicKey(deploy.vectraMintAddress);
