@@ -96,23 +96,6 @@ export default function App() {
     const provider = getSolanaProvider();
     if (!provider) return;
 
-    // 仅当用户此前主动连接过时，才尝试无感静默恢复连接 (onlyIfTrusted)
-    if (localStorage.getItem('vectra_wallet_connected') === 'true') {
-      if (typeof provider.connect === 'function') {
-        provider
-          .connect({ onlyIfTrusted: true })
-          .then((resp) => {
-            if (resp && resp.publicKey) {
-              const addr = resp.publicKey.toString();
-              setWalletAddress(addr);
-            }
-          })
-          .catch(() => {
-            localStorage.removeItem('vectra_wallet_connected');
-          });
-      }
-    }
-
     const handleAccountChange = (publicKey) => {
       if (publicKey) {
         const addr = publicKey.toString();
@@ -141,7 +124,7 @@ export default function App() {
     };
   }, []);
 
-  // 连接 Phantom 钱包 (通用版逻辑，必定唤起 Phantom 插件弹窗)
+  // 连接 Phantom 钱包 (显式授权机制：必调起 Phantom 授权签名弹窗，断开后重新连接需再次授权)
   const connectWallet = async () => {
     const provider = getSolanaProvider();
 
@@ -159,21 +142,52 @@ export default function App() {
 
     try {
       setIsConnecting(true);
-      // 显式调用 connect() 必定唤起 Phantom 插件弹窗
-      const resp = await provider.connect();
-      if (resp && resp.publicKey) {
-        const addr = resp.publicKey.toString();
-        setWalletAddress(addr);
-        localStorage.setItem('vectra_wallet_connected', 'true');
+
+      // 1. 若当前会话已有残留状态，先调用 disconnect 彻底重置
+      if (typeof provider.disconnect === 'function') {
+        try {
+          await provider.disconnect();
+        } catch (_) {}
       }
+
+      // 2. 唤起连接并获取公钥
+      const resp = await provider.connect();
+      if (!resp || !resp.publicKey) {
+        throw new Error('No public key returned');
+      }
+      const addr = resp.publicKey.toString();
+
+      // 3. 强制唤起 Phantom 授权签名弹窗 (Sign-In Authorization)
+      // 无论此前是否被标记为信任应用，signMessage 均 100% 弹出 Phantom 授权窗口，要求用户点击 Approve 确认
+      const authMessageText =
+        lang === 'en'
+          ? `Welcome to Vectra Protocol!\n\nPlease sign to authorize connecting your Solana wallet.\n\nWallet: ${addr}\nTimestamp: ${new Date().toISOString()}\nDomain: aa971375532.github.io`
+          : `欢迎使用 Vectra Protocol 去中心化结算协议！\n\n请在 Phantom 钱包中确认签名授权以连接您的 Solana 钱包。\n本授权不会产生任何链上 Gas 费用。\n\n钱包地址: ${addr}\n时间: ${new Date().toLocaleString()}\n官网: aa971375532.github.io`;
+
+      const encodedMessage = new TextEncoder().encode(authMessageText);
+      if (typeof provider.signMessage === 'function') {
+        await provider.signMessage(encodedMessage, 'utf8');
+      }
+
+      // 4. 用户在 Phantom 窗口中点击确认授权后，正式保存连接态
+      setWalletAddress(addr);
+      localStorage.setItem('vectra_wallet_connected', 'true');
     } catch (err) {
-      console.warn('Wallet connection cancelled or rejected by user:', err);
+      console.warn('Wallet authorization cancelled or rejected by user:', err);
+      // 用户取消/拒绝授权或关闭 Phantom 弹窗时，彻底断开连接并清空状态
+      try {
+        if (typeof provider.disconnect === 'function') {
+          await provider.disconnect();
+        }
+      } catch (_) {}
+      setWalletAddress(null);
+      localStorage.removeItem('vectra_wallet_connected');
     } finally {
       setIsConnecting(false);
     }
   };
 
-  // 退出并彻底断开钱包连接
+  // 退出并彻底断开钱包连接 (断开后再次连接必须重新经过 Phantom 授权弹窗)
   const disconnectWallet = async () => {
     try {
       const provider = getSolanaProvider();
@@ -339,7 +353,7 @@ export default function App() {
               >
                 <Wallet className="h-4 w-4 mr-1.5" />
                 {isConnecting
-                  ? (lang === 'en' ? 'Connecting...' : '正在连接...')
+                  ? (lang === 'en' ? 'Authorizing in Phantom...' : '正在请求 Phantom 授权...')
                   : t.nav.connectWallet}
               </Button>
             ) : (
