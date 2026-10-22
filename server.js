@@ -115,6 +115,50 @@ app.post('/api/pay', (req, res) => {
   });
 });
 
+// 创世空投申领登记接口
+const airdropClaimsPath = path.join(__dirname, 'config', 'airdrop-claims.json');
+function getAirdropClaims() {
+  if (fs.existsSync(airdropClaimsPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(airdropClaimsPath, 'utf-8'));
+    } catch (_) {
+      return [];
+    }
+  }
+  return [];
+}
+
+app.post('/api/airdrop/claim', (req, res) => {
+  const { wallet, twitter, amount } = req.body;
+  if (!wallet) {
+    return res.status(400).json({ error: 'Solana wallet address required' });
+  }
+  const claims = getAirdropClaims();
+  const existing = claims.find(
+    (c) => c.wallet === wallet || (twitter && c.twitter && c.twitter.toLowerCase() === twitter.toLowerCase())
+  );
+  if (existing) {
+    return res.json({ success: true, message: 'Already registered', claim: existing });
+  }
+
+  const newClaim = {
+    wallet,
+    twitter: twitter || 'unknown',
+    amount: amount || 1000,
+    claimedAt: new Date().toISOString(),
+    status: 'queued',
+  };
+  claims.push(newClaim);
+  fs.mkdirSync(path.dirname(airdropClaimsPath), { recursive: true });
+  fs.writeFileSync(airdropClaimsPath, JSON.stringify(claims, null, 2));
+
+  res.json({ success: true, message: 'Airdrop claim registered', claim: newClaim });
+});
+
+app.get('/api/airdrop/claims', (req, res) => {
+  res.json({ success: true, claims: getAirdropClaims() });
+});
+
 // 水龙头状态与配置查询接口
 app.get('/api/faucet/info', (req, res) => {
   const deployment = getDeploymentInfo();
