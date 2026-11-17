@@ -50,6 +50,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 
 import { translations } from '@/i18n/translations';
+import MiningDashboard from '@/components/MiningDashboard';
 
 export default function App() {
   // 默认英文 (English by default)
@@ -385,6 +386,13 @@ export default function App() {
               <Code2 className="h-3.5 w-3.5 mr-1.5 text-slate-400 group-hover:text-slate-200" />
               {t.nav.github}
             </a>
+                        <a
+              href="#mining"
+              className="flex items-center text-purple-400 hover:text-purple-300 transition-colors py-1 font-semibold group"
+            >
+              <Cpu className="h-3.5 w-3.5 mr-1.5 text-purple-400 group-hover:scale-110 transition-transform" />
+              {lang === 'en' ? 'PoI Mining' : '算力挖矿'}
+            </a>
             <a
               href="#airdrop"
               className="flex items-center text-amber-400 hover:text-amber-300 transition-colors py-1 font-semibold group"
@@ -593,6 +601,16 @@ export default function App() {
               </a>
             </div>
           </div>
+        </section>
+
+        {/* 全网算力挖矿大盘与在线矿机组件 (Mining Dashboard) */}
+        <section id="mining" className="mb-20">
+          <MiningDashboard
+            walletAddress={walletAddress}
+            connectWallet={connectWallet}
+            isConnecting={isConnecting}
+            lang={lang}
+          />
         </section>
 
         {/* 链上核心指标看板 (Card 组件) */}
